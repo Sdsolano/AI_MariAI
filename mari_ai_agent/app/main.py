@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from rag.vector_stores.chroma_store import generate_db, retrieve_db
 import os
+from rag.retrievers.grade_retriever import preguntar_con_contexto
 app = FastAPI()
 
 class CarpetaRequest(BaseModel):
@@ -44,16 +45,22 @@ def retrieve_endpoint(req: RetrieveRequest):
         if resultados is None:
             return {"mensaje": "No se encontraron resultados con ese umbral."}
         
+        documentos = [doc for doc, _ in resultados]
+
+        # Obtener respuesta del modelo usando el contexto
+        respuesta_modelo = preguntar_con_contexto(documentos, req.query)
+
         # Formatear para que sea JSON serializable
         return {
-            "resultados": [
-                {
-                    "contenido": doc.page_content,
-                    "metadatos": doc.metadata,
-                    "score": score
-                }
-                for doc, score in resultados
-            ]
+            "respuesta": respuesta_modelo,
+            # "resultados": [
+            #     {
+            #         "contenido": doc.page_content,
+            #         "metadatos": doc.metadata,
+            #         "score": score
+            #     }
+            #     for doc, score in resultados
+            # ]
         }
 
     except Exception as e:

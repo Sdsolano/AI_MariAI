@@ -7,7 +7,6 @@ import os
 def generate_db(folder_path,grade:str):
 # 1. Cargar todos los documentos
     OPENAI_API_KEY = "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"  # reemplaza con tu key real
-
     all_documents = []
     for filename in os.listdir(folder_path):
         if filename.lower().endswith((".pdf", ".docx", ".pptx", ".txt", ".csv", ".xlsx", ".xlsm")):
