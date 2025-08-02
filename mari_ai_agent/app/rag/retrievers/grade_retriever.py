@@ -1,9 +1,14 @@
 import openai
 from typing import List
-from langchain.schema import Document  # o reemplaza si es otra clase
+from langchain.schema import Document
+import os  # o reemplaza si es otra clase
+from dotenv import load_dotenv
 
+# Carga las variables ANTES de usarlas
+load_dotenv()
+api_key = os.environ["API_KEY"] 
  # Reemplaza por tu clave real o ponla como variable de entorno
-client = openai.Client(api_key="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")
+client = openai.Client(api_key=api_key)
 def construir_contexto_desde_docs(documentos: List[Document]) -> str:
     """
     Construye un contexto textual a partir de una lista de documentos.

@@ -1,0 +1,13 @@
+# Archivos de entorno
+.env
+.env*
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+
+# Bases de datos locales
+*.db
+*.sqlite
+mari_ai_grado_*  # Para excluir tus bases Chroma

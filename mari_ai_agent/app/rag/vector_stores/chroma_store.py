@@ -3,10 +3,17 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 import os
+from dotenv import load_dotenv
+
+# Carga las variables ANTES de usarlas
+def take_key():
+    load_dotenv()
+    api_key = os.environ["API_KEY"] 
+    return api_key
 
 def generate_db(folder_path,grade:str):
 # 1. Cargar todos los documentos
-    OPENAI_API_KEY = "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"  # reemplaza con tu key real
+    OPENAI_API_KEY = take_key() # reemplaza con tu key real
     all_documents = []
     for filename in os.listdir(folder_path):
         if filename.lower().endswith((".pdf", ".docx", ".pptx", ".txt", ".csv", ".xlsx", ".xlsm")):
@@ -45,7 +52,7 @@ def generate_db(folder_path,grade:str):
 
 
 def retrieve_db(grade:str,query:str,umbral:float,k:int):
-    OPENAI_API_KEY = "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" 
+    OPENAI_API_KEY = take_key()
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
     print("📂 Existe la carpeta?", os.path.exists(f"mari_ai_grado_{grade}"))
     db = Chroma(

@@ -24,8 +24,6 @@ def procesar_carpeta_endpoint(req: CarpetaRequest):
 
 
 
-
-
 class RetrieveRequest(BaseModel):
     grade: str
     query: str
