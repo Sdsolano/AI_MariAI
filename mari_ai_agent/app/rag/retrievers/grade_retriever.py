@@ -25,7 +25,7 @@ def preguntar_con_contexto(documentos: List[Document], pregunta: str, modelo: st
     La respuesta incluirá las fuentes y páginas como referencias.
     """
     contexto = construir_contexto_desde_docs(documentos)
-    
+        
     messages = [
         {
             "role": "system",

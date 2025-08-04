@@ -5,7 +5,6 @@ from langchain_openai import OpenAIEmbeddings
 import os
 from dotenv import load_dotenv
 
-# Carga las variables ANTES de usarlas
 def take_key():
     load_dotenv()
     api_key = os.environ["API_KEY"] 
@@ -13,7 +12,7 @@ def take_key():
 
 def generate_db(folder_path,grade:str):
 # 1. Cargar todos los documentos
-    OPENAI_API_KEY = take_key() # reemplaza con tu key real
+    OPENAI_API_KEY = take_key() 
     all_documents = []
     for filename in os.listdir(folder_path):
         if filename.lower().endswith((".pdf", ".docx", ".pptx", ".txt", ".csv", ".xlsx", ".xlsm")):
@@ -25,12 +24,10 @@ def generate_db(folder_path,grade:str):
                 else:
                     docs = loader_type.load()
                     for doc in docs:
-                        doc.metadata.setdefault("source", filename)  # No sobrescribe si ya existe
-
-
+                        doc.metadata.setdefault("source", filename) 
                 all_documents.extend(docs)
             except Exception as e:
-                print(f"❌ Error cargando {filename}: {e}")
+                print(f"Error cargando {filename}: {e}")
 
     # 2. Dividir en fragmentos
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
@@ -47,7 +44,7 @@ def generate_db(folder_path,grade:str):
     )
 
     vectordb.persist()
-    print("✅ Base vectorial creada correctamente con Excel incluido.")
+    print("Base vectorial creada correctamente.")
 
 
 
@@ -60,10 +57,11 @@ def retrieve_db(grade:str,query:str,umbral:float,k:int):
         embedding_function=embeddings
     )
     resultados_con_score = db.similarity_search_with_score(query, k=k)
-
+    print("Resultados encontrados:", len(resultados_con_score))
     resultados_filtrados = [(doc, score) for doc, score in resultados_con_score if score <= umbral]
-
+    
     if not resultados_filtrados:
+
         return None
     else:
         return resultados_filtrados
