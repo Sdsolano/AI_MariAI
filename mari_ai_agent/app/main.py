@@ -40,12 +40,12 @@ def retrieve_endpoint(req: RetrieveRequest):
             k=req.k
         )
 
-        if resultados is None:
-            return {"mensaje": "No se encontraron resultados con ese umbral."}
-        
-        documentos = [doc for doc, _ in resultados]
+        if not resultados:
+            documentos = []
+        else:
+            documentos = [doc for doc, _ in resultados]
 
-        # Obtener respuesta del modelo usando el contexto
+    
         respuesta_modelo = preguntar_con_contexto(documentos, req.query)
 
         # Formatear para que sea JSON serializable

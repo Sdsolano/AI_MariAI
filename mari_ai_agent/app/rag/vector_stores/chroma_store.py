@@ -57,11 +57,11 @@ def retrieve_db(grade:str,query:str,umbral:float,k:int):
         embedding_function=embeddings
     )
     resultados_con_score = db.similarity_search_with_score(query, k=k)
-    print("Resultados encontrados:", len(resultados_con_score))
-    resultados_filtrados = [(doc, score) for doc, score in resultados_con_score if score <= umbral]
     
+    resultados_filtrados = [(doc, score) for doc, score in resultados_con_score if score <= umbral]
+    print("Resultados encontrados:", len(resultados_filtrados))
     if not resultados_filtrados:
-
+        print("No se encontraron resultados con ese umbral.")
         return None
     else:
         return resultados_filtrados
