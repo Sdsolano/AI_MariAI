@@ -1,0 +1,9 @@
+MARI AI - ML Dataset Summary
+===================================
+
+Dataset Info:
+{'total_students': 0, 'total_features': 38, 'numeric_features': 32, 'categorical_features': 6, 'missing_values': 0.0}
+
+Academic Metrics:
+{'avg_total_grades': nan, 'avg_grade_average': nan, 'avg_subjects_count': nan}
+
