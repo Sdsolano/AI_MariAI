@@ -1,0 +1,106 @@
+{
+  "dataset_info": {
+    "total_students": 200,
+    "high_risk_pct": 32.5,
+    "features_count": 30
+  },
+  "temporal_split": {
+    "train_size": 169,
+    "test_size": 31,
+    "train_risk_pct": 29.585798816568047,
+    "test_risk_pct": 48.38709677419355
+  },
+  "feature_distribution": {
+    "average_grade": {
+      "train_mean": 3.6669996517755568,
+      "test_mean": 3.398744427784078,
+      "train_std": 0.3645878921744562,
+      "test_std": 0.436185590068529,
+      "mean_diff_pct": 7.315387222946415,
+      "std_diff_pct": 19.637980149876498,
+      "distribution_stable": true
+    },
+    "pct_low_combined": {
+      "train_mean": 0.15780774453379903,
+      "test_mean": 0.23071338307377415,
+      "train_std": 0.10506335011949508,
+      "test_std": 0.1596514925419142,
+      "mean_diff_pct": 46.199024487267984,
+      "std_diff_pct": 51.95735940300078,
+      "distribution_stable": "False"
+    },
+    "grade_std": {
+      "train_mean": 0.9372377310094742,
+      "test_mean": 0.9635697036651475,
+      "train_std": 0.1594428413255092,
+      "test_std": 0.1288773221538643,
+      "mean_diff_pct": 2.809529725965242,
+      "std_diff_pct": 19.17020476902072,
+      "distribution_stable": true
+    },
+    "total_grades": {
+      "train_mean": 96.14201183431953,
+      "test_mean": 90.2258064516129,
+      "train_std": 15.800955312435182,
+      "test_std": 13.94443659055313,
+      "mean_diff_pct": 6.153610965518349,
+      "std_diff_pct": 11.749408090667734,
+      "distribution_stable": true
+    },
+    "subjects_count": {
+      "train_mean": 19.597633136094675,
+      "test_mean": 19.451612903225808,
+      "train_std": 1.4405667148201944,
+      "test_std": 1.5882634054719296,
+      "mean_diff_pct": 0.7450911640953678,
+      "std_diff_pct": 10.25267966643045,
+      "distribution_stable": true
+    }
+  },
+  "temporal_cv": {
+    "cv_auc_mean": 0.9978106185002736,
+    "cv_auc_std": 0.002047978865229303,
+    "cv_auc_scores": [
+      0.9983579638752053,
+      1.0,
+      0.9950738916256158
+    ],
+    "fold_details": [
+      {
+        "fold": 1,
+        "train_size": 50,
+        "test_size": 50,
+        "auc_score": 0.9983579638752053,
+        "train_risk_pct": 24.0,
+        "test_risk_pct": 42.0
+      },
+      {
+        "fold": 2,
+        "train_size": 100,
+        "test_size": 50,
+        "auc_score": 1.0,
+        "train_risk_pct": 33.0,
+        "test_risk_pct": 22.0
+      },
+      {
+        "fold": 3,
+        "train_size": 150,
+        "test_size": 50,
+        "auc_score": 0.9950738916256158,
+        "train_risk_pct": 29.333333333333332,
+        "test_risk_pct": 42.0
+      }
+    ]
+  },
+  "business_logic": {
+    "low_avg_high_risk_pct": 100.0,
+    "high_low_notes_high_risk_pct": 100.0,
+    "excellent_low_risk_pct": 100.0,
+    "business_logic_valid": "True"
+  },
+  "interpretation": {
+    "auc_level": 0.9978106185002736,
+    "assessment": "\u26a0\ufe0f EXTREMELY HIGH - Possible overfitting or data leakage",
+    "production_ready": "False"
+  }
+}
