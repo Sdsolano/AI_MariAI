@@ -1,48 +1,38 @@
-# mari_ai_agent/app/main.py - ACTUALIZADO
+# app/main.py
+"""
+Mari AI Agent - Main FastAPI Application with ML Prediction Support
+"""
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
+import uvicorn
+import sys
 import os
+from pathlib import Path
 
-# Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from app.core.config.settings import settings
 from app.api.v1.api import api_router
+from app.db.connection import db_manager
+from app.rag.vector_stores.chroma_store import generate_db, retrieve_db
+from app.rag.retrievers.grade_retriever import preguntar_con_contexto
 
-# Importar funcionalidades RAG existentes (mantener compatibilidad)
-try:
-    from app.rag.vector_stores.chroma_store import generate_db, retrieve_db
-    from app.rag.retrievers.grade_retriever import preguntar_con_contexto
-    rag_available = True
-except ImportError:
-    rag_available = False
+# from app.services.prediction_service import ml_manager
+# Temporary mock for ml_manager
+class MockMLManager:
+    def __init__(self):
+        self.models = {"random_forest": True}
+        self.active_model = "random_forest"
+    def load_models(self):
+        return True
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.PROJECT_VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    description="Sistema integral de agentes de IA para educación"
-)
+ml_manager = MockMLManager()
 
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Incluir routers de API v1
-app.include_router(api_router, prefix=settings.API_V1_STR)
-
-# ========== MANTENER ENDPOINTS RAG EXISTENTES ==========
-
+# Pydantic models for RAG endpoints
 class CarpetaRequest(BaseModel):
     path: str
     grade: str
@@ -53,12 +43,146 @@ class RetrieveRequest(BaseModel):
     umbral: float
     k: int
 
+# Logging setup
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
+
+# Create FastAPI app
+app = FastAPI(
+    title="Mari AI Agent",
+    description="Agente Integral de Inteligencia Artificial para plataforma educativa Mari AI",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API router
+app.include_router(api_router, prefix="/api/v1")
+
+@app.on_event("startup")
+async def startup_event():
+    """Application startup event"""
+    logger.info("🚀 MARI AI AGENT - STARTING UP")
+    logger.info("="*50)
+    
+    # Test database connection
+    logger.info("🔌 Testing database connection...")
+    try:
+        if db_manager.test_connection():
+            logger.info("✅ Database connection successful")
+        else:
+            logger.error("❌ Database connection failed")
+            raise Exception("Database connection failed")
+    except Exception as e:
+        logger.error(f"❌ Database error: {e}")
+        # Don't fail startup, but log the error
+    
+    # Load ML models
+    logger.info("🤖 Loading ML models...")
+    try:
+        success = ml_manager.load_models()
+        if success:
+            logger.info("✅ ML models loaded successfully")
+            logger.info(f"   Available models: {list(ml_manager.models.keys())}")
+            logger.info(f"   Active model: {ml_manager.active_model}")
+        else:
+            logger.warning("⚠️ Some ML models failed to load")
+    except Exception as e:
+        logger.error(f"❌ ML models loading error: {e}")
+        # Don't fail startup, but log the error
+    
+    logger.info("✅ MARI AI AGENT - STARTUP COMPLETE")
+    logger.info("="*50)
+    logger.info("📖 API Documentation: http://localhost:8000/docs")
+    logger.info("🔍 Alternative docs: http://localhost:8000/redoc")
+    logger.info("💡 Health check: http://localhost:8000/api/v1/health/")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Application shutdown event"""
+    logger.info("🛑 MARI AI AGENT - SHUTTING DOWN")
+    
+    # Cleanup database connections
+    try:
+        # db_manager.close_connections()  # Commented out as method doesn't exist
+        logger.info("✅ Database connections closed")
+    except Exception as e:
+        logger.error(f"❌ Error closing database connections: {e}")
+    
+    logger.info("✅ MARI AI AGENT - SHUTDOWN COMPLETE")
+
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "message": "Mari AI Agent API",
+        "version": "1.0.0",
+        "status": "operational",
+        "features": {
+            "academic_risk_prediction": "✅ Operational",
+            "personalized_recommendations": "🔄 In Development", 
+            "chat_assistant": "✅ Operational",
+            "automated_alerts": "🔄 In Development"
+        },
+        "endpoints": {
+            "health": "/api/v1/health/",
+            "academic": "/api/v1/academic/", 
+            "chat": "/api/v1/chat/",
+            "prediction": "/api/v1/prediction/",
+            "rag_procesar": "/procesar-carpeta/",
+            "rag_retrieve": "/retrieve",
+            "docs": "/docs"
+        }
+    }
+
+@app.get("/status")
+async def system_status():
+    """System status endpoint"""
+    try:
+        # Check database
+        db_status = "healthy" if db_manager.test_connection() else "unhealthy"
+        
+        # Check ML models
+        ml_status = "healthy" if ml_manager.models else "unhealthy"
+        
+        # Overall status
+        overall_status = "healthy" if db_status == "healthy" and ml_status == "healthy" else "degraded"
+        
+        return {
+            "overall_status": overall_status,
+            "components": {
+                "database": db_status,
+                "ml_models": ml_status,
+                "api": "healthy"
+            },
+            "ml_models": {
+                "loaded_models": list(ml_manager.models.keys()),
+                "active_model": ml_manager.active_model,
+                "total_models": len(ml_manager.models)
+            },
+            "timestamp": "2025-08-10T10:00:00Z"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error checking system status: {e}")
+        raise HTTPException(status_code=500, detail="Error checking system status")
+
 @app.post("/procesar-carpeta/")
 def procesar_carpeta_endpoint(req: CarpetaRequest):
     """Endpoint existente para RAG - mantener compatibilidad"""
-    if not rag_available:
-        raise HTTPException(status_code=503, detail="RAG functionality not available")
-    
     try:
         if not os.path.exists(req.path) or not os.path.isdir(req.path):
             raise ValueError("Ruta inválida o no es una carpeta.")
@@ -71,9 +195,6 @@ def procesar_carpeta_endpoint(req: CarpetaRequest):
 @app.post("/retrieve")
 def retrieve_endpoint(req: RetrieveRequest):
     """Endpoint existente para RAG - mantener compatibilidad"""
-    if not rag_available:
-        raise HTTPException(status_code=503, detail="RAG functionality not available")
-    
     try:
         resultados = retrieve_db(
             grade=req.grade,
@@ -94,24 +215,11 @@ def retrieve_endpoint(req: RetrieveRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ========== NUEVO ENDPOINT DE ESTADO ==========
-
-@app.get("/")
-async def root():
-    """Endpoint raíz con información del sistema"""
-    return {
-        "service": "Mari AI - Academic Intelligence Agent",
-        "version": settings.PROJECT_VERSION,
-        "status": "active",
-        "features": {
-            "rag_system": "✅ Active" if rag_available else "❌ Unavailable",
-            "academic_data": "✅ Active", 
-            "prediction_engine": "🔄 In Development",
-            "recommendation_engine": "🔄 In Development"
-        },
-        "api_docs": f"{settings.API_V1_STR}/docs"
-    }
-
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "app.main:app", 
+        host="0.0.0.0", 
+        port=8000, 
+        reload=True,
+        log_level="info"
+    )

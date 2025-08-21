@@ -1,6 +1,6 @@
-from rag.content_processors.content_indexer import get_loader, excel_loader
+from app.rag.content_processors.content_indexer import get_loader, excel_loader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 import os
 from dotenv import load_dotenv
