@@ -21,16 +21,7 @@ from app.db.connection import db_manager
 from app.rag.vector_stores.chroma_store import generate_db, retrieve_db
 from app.rag.retrievers.grade_retriever import preguntar_con_contexto
 
-# from app.services.prediction_service import ml_manager
-# Temporary mock for ml_manager
-class MockMLManager:
-    def __init__(self):
-        self.models = {"random_forest": True}
-        self.active_model = "random_forest"
-    def load_models(self):
-        return True
-
-ml_manager = MockMLManager()
+from app.services.prediction_service import ml_manager
 
 # Pydantic models for RAG endpoints
 class CarpetaRequest(BaseModel):

@@ -9,12 +9,12 @@ from pydantic import BaseModel
 import logging
 import json
 from datetime import datetime
-import openai
+from openai import OpenAI
 import os
 from enum import Enum
 
 # Import our internal services
-from app.services.prediction_service import MLModelManager
+from app.services.prediction_service import ml_manager
 from app.services.rag_service import RAGService
 from app.db.connection import db_manager
 from sqlalchemy import text
@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Initialize services
-model_manager = MLModelManager()
+model_manager = ml_manager
 rag_service = RAGService()
 
 # OpenAI Configuration
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 async def get_student_id_from_user_id(user_id: str) -> Optional[int]:
     """
@@ -250,12 +250,38 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
                 # Get additional student context
                 student_info = await get_student_info_from_user_id(str(user_id)) if not str(user_id).isdigit() else None
                 
+                # Convert prediction result to dict for JSON serialization
+                prediction_dict = None
+                if prediction_result:
+                    prediction_dict = {
+                        "student_id": prediction_result.student_id,
+                        "risk_level": prediction_result.risk_level.value,
+                        "risk_probability": prediction_result.risk_probability,
+                        "confidence": prediction_result.confidence,
+                        "key_factors": [
+                            {
+                                "factor": kf.factor,
+                                "value": kf.value,
+                                "impact": kf.impact
+                            } for kf in prediction_result.key_factors
+                        ],
+                        "recommended_actions": [
+                            {
+                                "action": ra.action,
+                                "priority": ra.priority,
+                                "description": ra.description
+                            } for ra in prediction_result.recommended_actions
+                        ],
+                        "model_used": prediction_result.model_used,
+                        "prediction_timestamp": prediction_result.prediction_timestamp
+                    }
+                
                 return {
                     "function": "get_risk_prediction",
                     "user_id": user_id,
                     "student_id": student_id,
                     "student_info": student_info,
-                    "result": prediction_result
+                    "result": prediction_dict
                 }
                 
             except ValueError as e:
@@ -335,11 +361,11 @@ Esto te permitirá personalizar tu respuesta inicial basada en su situación aca
             })
         
         # Call GPT-4.1 with function calling
-        response = await openai.ChatCompletion.acreate(
+        response = client.chat.completions.create(
             model="gpt-4-1106-preview",  # GPT-4 Turbo (latest available)
             messages=messages,
-            functions=FUNCTION_DEFINITIONS,
-            function_call="auto",
+            tools=[{"type": "function", "function": func} for func in FUNCTION_DEFINITIONS],
+            tool_choice="auto",
             temperature=0.7,
             max_tokens=1500
         )
@@ -349,8 +375,9 @@ Esto te permitirá personalizar tu respuesta inicial basada en su situación aca
         risk_analysis = None
         
         # Handle function calls
-        if assistant_message.get("function_call"):
-            function_call = assistant_message.function_call
+        if assistant_message.tool_calls:
+            tool_call = assistant_message.tool_calls[0]
+            function_call = tool_call.function
             function_name = function_call.name
             function_args = function_call.arguments
             
@@ -368,20 +395,17 @@ Esto te permitirá personalizar tu respuesta inicial basada en su situación aca
             messages.append({
                 "role": "assistant",
                 "content": assistant_message.content or f"Llamando función {function_name}...",
-                "function_call": {
-                    "name": function_name,
-                    "arguments": function_args
-                }
+                "tool_calls": assistant_message.tool_calls
             })
             
             messages.append({
-                "role": "function",
-                "name": function_name,
-                "content": json.dumps(function_result, ensure_ascii=False)
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(function_result, ensure_ascii=False, default=str)
             })
             
             # Get the final response from GPT with function result
-            final_response = await openai.ChatCompletion.acreate(
+            final_response = client.chat.completions.create(
                 model="gpt-4-1106-preview",
                 messages=messages,
                 temperature=0.7,
