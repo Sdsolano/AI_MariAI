@@ -144,6 +144,133 @@ class RAGService:
             logger.error(f"❌ Error retrieving documents: {e}")
             raise Exception(f"Error retrieving documents: {str(e)}")
     
+    def _normalize_grade_name(self, grade: str) -> str:
+        """Normalize grade names to match ChromaDB directory naming"""
+        if not grade:
+            return "academic"  # Default fallback
+        
+        # Remove extra spaces and standardize format
+        normalized = grade.strip().lower()
+        
+        # Common grade mappings
+        grade_mappings = {
+            "sexto": "6°",
+            "6": "6°",
+            "grado 6": "6°",
+            "septimo": "7°", 
+            "séptimo": "7°",
+            "7": "7°",
+            "grado 7": "7°",
+            "octavo": "8°",
+            "8": "8°",
+            "grado 8": "8°",
+            "noveno": "9°",
+            "9": "9°",
+            "grado 9": "9°",
+            "decimo": "10°",
+            "décimo": "10°",
+            "10": "10°",
+            "grado 10": "10°",
+            "once": "11°",
+            "11": "11°",
+            "grado 11": "11°"
+        }
+        
+        # Try to find exact match first
+        if normalized in grade_mappings:
+            return grade_mappings[normalized]
+        
+        # Try to extract number pattern
+        import re
+        match = re.search(r'(\d{1,2})', normalized)
+        if match:
+            number = match.group(1)
+            if number in grade_mappings:
+                return grade_mappings[number]
+            return f"{number}°"
+        
+        # If no pattern matches, try original grade name
+        return grade.strip()
+    
+    async def retrieve_documents_by_grade(
+        self, 
+        query: str, 
+        grade: Optional[str] = None,
+        context_type: str = "academic",
+        max_results: int = 5,
+        similarity_threshold: float = 0.7
+    ) -> List[Dict[str, Any]]:
+        """Retrieve documents from grade-specific ChromaDB store"""
+        try:
+            logger.info(f"🎓 Retrieving documents by grade: '{grade}' for query: '{query}'")
+            
+            # Normalize grade name
+            normalized_grade = self._normalize_grade_name(grade) if grade else "academic"
+            
+            # Try to load grade-specific vector store
+            from pathlib import Path
+            from langchain.vectorstores import Chroma
+            from langchain.embeddings import OpenAIEmbeddings
+            
+            grade_db_path = Path(f"mari_ai_grado_{normalized_grade}")
+            
+            if grade_db_path.exists():
+                logger.info(f"📚 Using grade-specific database: {grade_db_path}")
+                embeddings = OpenAIEmbeddings(openai_api_key=self.api_key)
+                vectordb = Chroma(
+                    persist_directory=str(grade_db_path),
+                    embedding_function=embeddings
+                )
+            else:
+                # Fallback to general academic database or default store
+                logger.warning(f"⚠️ Grade database {grade_db_path} not found, using fallback")
+                fallback_path = Path("mari_ai_grado_academic")
+                if fallback_path.exists():
+                    embeddings = OpenAIEmbeddings(openai_api_key=self.api_key)
+                    vectordb = Chroma(
+                        persist_directory=str(fallback_path),
+                        embedding_function=embeddings
+                    )
+                else:
+                    # Use existing vector store from memory
+                    vectordb = self.vector_stores.get(context_type) or self.vector_stores.get("academic")
+                    if not vectordb:
+                        logger.warning("No vector store available, creating default")
+                        self._create_default_store()
+                        vectordb = self.vector_stores.get("academic")
+            
+            # Perform similarity search
+            docs_with_scores = vectordb.similarity_search_with_score(
+                query, 
+                k=max_results * 2  # Get more results to filter by threshold
+            )
+            
+            # Filter by similarity threshold and format results
+            retrieved_docs = []
+            for doc, score in docs_with_scores:
+                # Convert distance to similarity (Chroma returns distance, lower is better)
+                similarity_score = 1 / (1 + score)
+                
+                if similarity_score >= similarity_threshold and len(retrieved_docs) < max_results:
+                    retrieved_docs.append({
+                        "content": doc.page_content,
+                        "similarity_score": round(similarity_score, 3),
+                        "metadata": {
+                            **doc.metadata,
+                            "grade_context": normalized_grade
+                        },
+                        "doc_id": doc.metadata.get("source", f"doc_{len(retrieved_docs)}")
+                    })
+            
+            logger.info(f"✅ Retrieved {len(retrieved_docs)} documents from grade {normalized_grade}")
+            return retrieved_docs
+            
+        except Exception as e:
+            logger.error(f"❌ Error retrieving documents by grade: {e}")
+            # Fallback to general search
+            logger.info("🔄 Falling back to general document retrieval")
+            return await self.retrieve_documents(query, context_type, max_results, similarity_threshold)
+    
     async def generate_response(
         self, 
         query: str, 
@@ -338,6 +465,75 @@ Respuesta:"""
             return {
                 "total_documents": 0,
                 "document_types": {},
+                "error": str(e)
+            }
+
+    async def query_by_grade(
+        self, 
+        query: str, 
+        grade: Optional[str] = None,
+        context_type: str = "academic"
+    ) -> Dict[str, Any]:
+        """Complete RAG query pipeline with grade-aware search"""
+        try:
+            logger.info(f"🎓 Starting grade-aware RAG query: '{query}' for grade: {grade}")
+            
+            # Step 1: Retrieve documents from grade-specific database
+            retrieved_docs = await self.retrieve_documents_by_grade(
+                query=query,
+                grade=grade,
+                context_type=context_type,
+                max_results=5,
+                similarity_threshold=0.7
+            )
+            
+            if not retrieved_docs:
+                logger.warning("No relevant documents found for grade-specific search")
+                return {
+                    "query": query,
+                    "retrieved_documents": [],
+                    "generated_response": f"Lo siento, no encontré información específica sobre '{query}' en el contenido de tu grado ({self._normalize_grade_name(grade) if grade else 'general'}). ¿Podrías ser más específico o reformular tu pregunta?",
+                    "context_used": [],
+                    "confidence_score": 0.0,
+                    "grade_context": self._normalize_grade_name(grade) if grade else "academic",
+                    "context_type": context_type,
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            # Step 2: Generate response based on retrieved documents
+            response_data = await self.generate_response(query, retrieved_docs)
+            
+            # Step 3: Compile complete response with grade context
+            return {
+                "query": query,
+                "retrieved_documents": retrieved_docs,
+                "generated_response": response_data["generated_response"],
+                "context_used": response_data["context_used"],
+                "confidence_score": response_data["confidence_score"],
+                "grade_context": self._normalize_grade_name(grade) if grade else "academic",
+                "context_type": context_type,
+                "timestamp": datetime.now().isoformat(),
+                "sources": [
+                    {
+                        "content": doc["content"][:200] + "..." if len(doc["content"]) > 200 else doc["content"],
+                        "similarity": doc["similarity_score"],
+                        "source": doc["metadata"].get("source", "unknown"),
+                        "grade": doc["metadata"].get("grade_context", "academic")
+                    } for doc in retrieved_docs
+                ]
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error in grade-aware RAG query: {e}")
+            return {
+                "query": query,
+                "retrieved_documents": [],
+                "generated_response": f"Disculpa, ocurrió un error al procesar tu consulta: {str(e)}",
+                "context_used": [],
+                "confidence_score": 0.0,
+                "grade_context": self._normalize_grade_name(grade) if grade else "academic",
+                "context_type": context_type,
+                "timestamp": datetime.now().isoformat(),
                 "error": str(e)
             }
 
