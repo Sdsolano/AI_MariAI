@@ -12,7 +12,7 @@ import psycopg2
 def obtener_cursos():
     conn = psycopg2.connect(
         dbname="aca_2",
-        user="pablo",
+        user="sdsolano",
         host="localhost",
         port="5432"
     )
@@ -32,9 +32,8 @@ def obtener_cursos():
 
     cur.execute(query)
     rows = cur.fetchall()
-    
     # Convertir a diccionario {file_path: grado}
-    result = {os.path.join('/Users/pablo/mari-back/backend-academico-main',row[0]): row[1] for row in rows}
+    result = {os.path.join('C:\\Users\\samue\\Downloads\\backend-academico-main\\backend-academico-main',row[0]): row[1] for row in rows}
     print(result)
 
 

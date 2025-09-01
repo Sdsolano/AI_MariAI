@@ -160,24 +160,27 @@ PERSONALIDAD Y ESTILO:
 
 CAPACIDADES PRINCIPALES:
 1. **Análisis de Riesgo**: Puedes evaluar el riesgo académico de estudiantes usando datos históricos
-2. **Sistema RAG**: Puedes buscar información relevante en la base de conocimientos académica
-3. **Recomendaciones Personalizadas**: Basadas en el perfil de riesgo del estudiante
+2. **Sistema RAG por Grado**: Puedes buscar información específica del grado académico del estudiante
+3. **Recomendaciones Personalizadas**: Basadas en el perfil de riesgo y grado del estudiante
 
 PROTOCOLO DE CONVERSACIÓN:
 1. **Al inicio**: SIEMPRE obtén un análisis de riesgo del estudiante para entender su situación
-2. **Para consultas**: SIEMPRE usa el sistema RAG para obtener información precisa y actualizada
-3. **Enfoque**: Proporciona recursos, estrategias y apoyo personalizado según el nivel de riesgo
+2. **Para consultas académicas**: SIEMPRE usa el sistema RAG específico del grado del estudiante
+3. **Enfoque**: Proporciona recursos, estrategias y apoyo personalizado según el nivel de riesgo y grado
 
 FUNCIONES DISPONIBLES:
-- `get_risk_prediction`: Obtiene predicción de riesgo académico para un estudiante
-- `search_academic_resources`: Busca información en la base de conocimientos usando RAG
+- `get_risk_prediction(user_id)`: Obtiene predicción de riesgo académico para un estudiante
+- `search_academic_resources(query, user_id)`: Busca información en el contenido específico del grado del estudiante
 
-INSTRUCCIONES ESPECÍFICAS:
+INSTRUCCIONES CRÍTICAS:
+- **SIEMPRE incluye el user_id del estudiante cuando uses search_academic_resources** - esto permite buscar en el contenido específico de su grado
 - Si el estudiante tiene ALTO riesgo: Sé más proactivo, ofrece recursos inmediatos y estrategias de recuperación
 - Si el estudiante tiene BAJO riesgo: Enfócate en mantener el rendimiento y ofrecer recursos de mejora
-- SIEMPRE usa RAG para consultas específicas sobre políticas, procedimientos, recursos académicos
-- Personaliza tus respuestas según el contexto del estudiante
+- Para consultas sobre materias, conceptos, tareas: USA search_academic_resources con el user_id para obtener contenido del grado correcto
+- Personaliza tus respuestas según el contexto del estudiante y su grado académico
 - Sé específico y práctico en tus recomendaciones
+
+CONTEXTO IMPORTANTE: El sistema puede buscar en contenido académico específico por grado (6°, 7°, 8°, etc.). Siempre que un estudiante pregunte sobre contenido académico, usa search_academic_resources con su user_id para obtener información relevante a su nivel educativo.
 
 Recuerda: Tu misión es ser el compañero de estudios inteligente que cada estudiante necesita para tener éxito.
 """
@@ -200,7 +203,7 @@ FUNCTION_DEFINITIONS = [
     },
     {
         "name": "search_academic_resources",
-        "description": "Busca información relevante en la base de conocimientos académica usando RAG",
+        "description": "Busca información relevante en la base de conocimientos académica específica del grado del estudiante usando RAG",
         "parameters": {
             "type": "object",
             "properties": {
@@ -208,13 +211,17 @@ FUNCTION_DEFINITIONS = [
                     "type": "string",
                     "description": "Consulta o pregunta para buscar en los recursos académicos"
                 },
+                "user_id": {
+                    "type": "string",
+                    "description": "User ID del estudiante para buscar en el contenido específico de su grado"
+                },
                 "context_type": {
                     "type": "string",
                     "description": "Tipo de contexto a buscar",
                     "enum": ["academic", "administrative", "policies"]
                 }
             },
-            "required": ["query"]
+            "required": ["query", "user_id"]
         }
     }
 ]
@@ -290,15 +297,34 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
         elif function_name == "search_academic_resources":
             query = args.get("query")
             context_type = args.get("context_type", "academic")
+            user_id = args.get("user_id")  # Get user_id for grade-specific search
             
             if not query:
                 return {"error": "Missing query parameter"}
             
-            # Call our RAG service
-            rag_result = await rag_service.query(query, context_type=context_type)
+            # Get student's grade for grade-specific RAG search
+            student_grade = None
+            if user_id:
+                try:
+                    student_info = await get_student_info_from_user_id(str(user_id))
+                    if student_info:
+                        student_grade = student_info.get("grado")
+                        logger.info(f"📚 Student grade identified: {student_grade} for user {user_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Could not get student grade for user {user_id}: {e}")
+            
+            # Call our RAG service with grade context
+            rag_result = await rag_service.query_by_grade(
+                query=query, 
+                grade=student_grade,
+                context_type=context_type
+            )
+            
             return {
                 "function": "search_academic_resources",
                 "query": query,
+                "student_grade": student_grade,
+                "context_type": context_type,
                 "result": rag_result
             }
             
