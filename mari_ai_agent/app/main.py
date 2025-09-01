@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 from app.api.v1.api import api_router
 from app.db.connection import db_manager
-from app.rag.vector_stores.chroma_store import generate_db, retrieve_db
+from app.rag.vector_stores.chroma_store import generate_db, retrieve_db,generate_db_from_dict,obtener_cursos
 from app.rag.retrievers.grade_retriever import preguntar_con_contexto
 
 from app.services.prediction_service import ml_manager
@@ -138,6 +138,10 @@ async def root():
             "docs": "/docs"
         }
     }
+@app.post("/procesar-carpeta-dict/")
+def procesar_carpeta_endpoint():
+    generate_db_from_dict(obtener_cursos())
+    return {"status": "ok"}
 
 @app.get("/status")
 async def system_status():

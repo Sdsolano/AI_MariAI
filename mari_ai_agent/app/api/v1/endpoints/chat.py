@@ -28,7 +28,7 @@ model_manager = ml_manager
 rag_service = RAGService()
 
 # OpenAI Configuration
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI(api_key=os.environ["API_KEY"] )
 
 async def get_student_id_from_user_id(user_id: str) -> Optional[int]:
     """
