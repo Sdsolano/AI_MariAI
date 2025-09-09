@@ -370,27 +370,36 @@ async def chat_with_mari(request: ChatRequest):
                 "content": msg.content
             })
         
-        # Add current user message
+        # Add current user message with persistent user_id context
+        user_message_with_context = f"[STUDENT_ID: {request.user_id}] {request.message}"
         messages.append({
             "role": "user", 
-            "content": request.message
+            "content": user_message_with_context
         })
         
         # Check if this is the start of conversation (no history)
         is_new_conversation = len(request.conversation_history) == 0
         
-        # If new conversation, add context about getting risk analysis
+        # Always add context about the student ID (not just for new conversations)
+        system_context = f"""
+IDENTIFICADOR PERSISTENTE DEL ESTUDIANTE: {request.user_id}
+REGLA CRÍTICA: SIEMPRE usa EXACTAMENTE el número {request.user_id} como user_id en TODAS las funciones.
+NO INVENTES números como 12345 o cualquier otro. USA SOLAMENTE: {request.user_id}
+        """
+        messages.append({
+            "role": "system",
+            "content": system_context
+        })
+        
+        # If new conversation, add context about getting risk analysis  
         if is_new_conversation:
-            system_context = f"""
-CONTEXTO INICIAL: Este es el inicio de una nueva conversación con el estudiante.
-IDENTIFICADOR DEL ESTUDIANTE: {request.user_id} (usa ESTE NÚMERO EXACTO)
-ACCIÓN REQUERIDA: Debes INMEDIATAMENTE obtener un análisis de riesgo académico del estudiante usando la función get_risk_prediction con el user_id numérico "{request.user_id}" antes de responder.
-IMPORTANTE: SIEMPRE usa el número {request.user_id} como user_id en todas las funciones, NUNCA uses nombres.
-Esto te permitirá personalizar tu respuesta inicial basada en su situación académica actual.
+            initial_context = f"""
+ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
+Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_prediction con user_id "{request.user_id}".
             """
             messages.append({
                 "role": "system",
-                "content": system_context
+                "content": initial_context
             })
         
         # Call GPT-4.1 with function calling
