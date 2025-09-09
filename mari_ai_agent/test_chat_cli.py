@@ -10,7 +10,7 @@ from datetime import datetime
 
 # Configuration
 API_BASE_URL = "http://localhost:8000/api/v1"  # Adjust if different
-TEST_USER_ID = "31068"  # User ID for testing
+TEST_USER_ID = "5893"  # Matricula ID - LUCIANA GOENAGA - 6° grado (78 notas, promedio 3.97)
 
 def chat_with_mari(message, conversation_history=None):
     """Send a message to Mari AI chat endpoint"""
@@ -71,7 +71,7 @@ def main():
     """Main CLI chat loop"""
     print("🚀 Mari AI Chat Test CLI")
     print("=" * 50)
-    print(f"Testing with User ID: {TEST_USER_ID}")
+    print(f"Testing with Matricula ID: {TEST_USER_ID}")
     print("Type your messages (or 'quit' to exit)")
     print("-" * 50)
     

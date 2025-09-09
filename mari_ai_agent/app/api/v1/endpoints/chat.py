@@ -65,15 +65,20 @@ async def get_student_id_from_user_id(user_id: str) -> Optional[int]:
         logger.error(f"❌ Error resolving user_id to student_id: {e}")
         return None
 
-async def get_student_info_from_user_id(user_id: str) -> Optional[Dict[str, Any]]:
+async def get_student_info_from_matricula_id(matricula_id: str) -> Optional[Dict[str, Any]]:
     """
-    Get complete student information from user_id
+    Get complete student information from matricula_id
     """
+    logger.info(f"🔍 [DEBUG] Getting student info from matricula_id: {matricula_id}")
+    
     try:
         with db_manager.get_session() as session:
+            
+            # Query directa con matricula_id - simple y directo
             query = text("""
                 SELECT 
                     em.id as idmatricula,
+                    e.id as student_id,
                     e.identificacion,
                     e.primer_nombre,
                     e.segundo_nombre,
@@ -81,28 +86,28 @@ async def get_student_info_from_user_id(user_id: str) -> Optional[Dict[str, Any]
                     e.segundo_apellido,
                     e.estrato,
                     e.fecha_nacimiento,
-                    u.correo,
+                    e.email as correo,
                     g.nombre as grado,
-                    gg.nombre as grupo
-                FROM usua_usuarios u
-                JOIN estu_estudiantes e ON u.id = e.idusuario
-                JOIN acad_estumatricula em ON e.id = em.idestudiante
-                LEFT JOIN acad_gradosgrupos gg ON em.idgrados_grupos = gg.id
-                LEFT JOIN acad_grados g ON gg.idgrado = g.id
-                WHERE u.id = :user_id 
-                AND u.estado = 'on'
+                    gg.nombre as grupo,
+                    gg.id as grupo_id,
+                    g.id as grado_id
+                FROM acad_estumatricula em
+                JOIN estu_estudiantes e ON em.idestudiante = e.id
+                JOIN acad_gradosgrupos gg ON em.idgrados_grupos = gg.id
+                JOIN acad_grados g ON gg.idgrado = g.id
+                WHERE em.id = :matricula_id
                 AND e.estado = 'on'
                 AND em.estado = 'on'
-                ORDER BY em.fecha_matricula DESC
                 LIMIT 1
             """)
             
-            result = session.execute(query, {"user_id": int(user_id)})
+            result = session.execute(query, {"matricula_id": int(matricula_id)})
             row = result.fetchone()
             
             if row:
-                return {
+                student_info = {
                     "idmatricula": row.idmatricula,
+                    "student_id": row.student_id,
                     "identificacion": row.identificacion,
                     "nombre_completo": f"{row.primer_nombre} {row.segundo_nombre or ''} {row.primer_apellido} {row.segundo_apellido or ''}".strip(),
                     "primer_nombre": row.primer_nombre,
@@ -110,13 +115,18 @@ async def get_student_info_from_user_id(user_id: str) -> Optional[Dict[str, Any]
                     "estrato": row.estrato,
                     "fecha_nacimiento": row.fecha_nacimiento,
                     "grado": row.grado,
-                    "grupo": row.grupo
+                    "grupo": row.grupo,
+                    "grupo_id": row.grupo_id,
+                    "grado_id": row.grado_id
                 }
+                logger.info(f"✅ SUCCESS: Student {student_info['nombre_completo']} found - Grade: {student_info['grado']}")
+                return student_info
             else:
+                logger.warning(f"❌ No student info found for matricula_id {matricula_id}")
                 return None
                 
     except Exception as e:
-        logger.error(f"❌ Error getting student info: {e}")
+        logger.error(f"❌ Error getting student info from matricula_id {matricula_id}: {e}")
         return None
 
 class MessageRole(str, Enum):
@@ -173,10 +183,11 @@ FUNCIONES DISPONIBLES:
 - `search_academic_resources(query, user_id)`: Busca información en el contenido específico del grado del estudiante
 
 INSTRUCCIONES CRÍTICAS:
-- **SIEMPRE incluye el user_id del estudiante cuando uses search_academic_resources** - esto permite buscar en el contenido específico de su grado
+- **SIEMPRE usa NÚMEROS como user_id** - NUNCA uses nombres de estudiantes
+- **SIEMPRE incluye el user_id numérico del estudiante cuando uses search_academic_resources** - esto permite buscar en el contenido específico de su grado
 - Si el estudiante tiene ALTO riesgo: Sé más proactivo, ofrece recursos inmediatos y estrategias de recuperación
 - Si el estudiante tiene BAJO riesgo: Enfócate en mantener el rendimiento y ofrecer recursos de mejora
-- Para consultas sobre materias, conceptos, tareas: USA search_academic_resources con el user_id para obtener contenido del grado correcto
+- Para consultas sobre materias, conceptos, tareas: USA search_academic_resources con el user_id NUMÉRICO para obtener contenido del grado correcto
 - Personaliza tus respuestas según el contexto del estudiante y su grado académico
 - Sé específico y práctico en tus recomendaciones
 
@@ -235,69 +246,63 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
         logger.info(f"🔧 Executing function: {function_name} with args: {args}")
         
         if function_name == "get_risk_prediction":
-            # The function should receive user_id and resolve to student_id internally
-            user_id = args.get("user_id") or args.get("student_id")  # Support both for compatibility
-            if not user_id:
+            # Trabajamos directamente con matricula_id - simple
+            matricula_id = args.get("user_id") or args.get("student_id")
+            if not matricula_id:
                 return {"error": "Missing user_id parameter"}
             
-            # If it's already a numeric student_id (for backward compatibility), use directly
+            logger.info(f"🔍 Processing risk prediction for matricula_id: {matricula_id}")
+            
+            # Get student info  
+            student_info = None
             try:
-                if str(user_id).isdigit() and int(user_id) > 10000:  # Assume student IDs are > 10000
-                    student_id = int(user_id)
-                    logger.info(f"Using direct student_id: {student_id}")
-                else:
-                    # Resolve user_id to student_id (idmatricula)
-                    student_id = await get_student_id_from_user_id(str(user_id))
-                    if not student_id:
-                        return {"error": f"No active student found for user_id: {user_id}"}
-                
-                # Call our prediction service
-                prediction_result = model_manager.predict_risk(student_id)
-                
-                # Get additional student context
-                student_info = await get_student_info_from_user_id(str(user_id)) if not str(user_id).isdigit() else None
-                
-                # Convert prediction result to dict for JSON serialization
-                prediction_dict = None
-                if prediction_result:
-                    prediction_dict = {
-                        "student_id": prediction_result.student_id,
-                        "risk_level": prediction_result.risk_level.value,
-                        "risk_probability": prediction_result.risk_probability,
-                        "confidence": prediction_result.confidence,
-                        "key_factors": [
-                            {
-                                "factor": kf.factor,
-                                "value": kf.value,
-                                "impact": kf.impact
-                            } for kf in prediction_result.key_factors
-                        ],
-                        "recommended_actions": [
-                            {
-                                "action": ra.action,
-                                "priority": ra.priority,
-                                "description": ra.description
-                            } for ra in prediction_result.recommended_actions
-                        ],
-                        "model_used": prediction_result.model_used,
-                        "prediction_timestamp": prediction_result.prediction_timestamp
-                    }
-                
-                return {
-                    "function": "get_risk_prediction",
-                    "user_id": user_id,
-                    "student_id": student_id,
-                    "student_info": student_info,
-                    "result": prediction_dict
+                student_info = await get_student_info_from_matricula_id(str(matricula_id))
+                if student_info:
+                    logger.info(f"✅ Found student: {student_info['nombre_completo']} - Grade: {student_info['grado']}")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not get student info for matricula_id {matricula_id}: {e}")
+            
+            # Call ML prediction with matricula_id
+            logger.info(f"🎯 Calling ML model with matricula_id: {matricula_id}")
+            prediction_result = model_manager.predict_risk(int(matricula_id))
+            
+            # Convert prediction result to dict for JSON serialization
+            prediction_dict = None
+            if prediction_result:
+                prediction_dict = {
+                    "student_id": prediction_result.student_id,
+                    "risk_level": prediction_result.risk_level.value,
+                    "risk_probability": prediction_result.risk_probability,
+                    "confidence": prediction_result.confidence,
+                    "key_factors": [
+                        {
+                            "factor": kf.factor,
+                            "value": kf.value,
+                            "impact": kf.impact
+                        } for kf in prediction_result.key_factors
+                    ],
+                    "recommended_actions": [
+                        {
+                            "action": ra.action,
+                            "priority": ra.priority,
+                            "description": ra.description
+                        } for ra in prediction_result.recommended_actions
+                    ],
+                    "model_used": prediction_result.model_used,
+                    "prediction_timestamp": prediction_result.prediction_timestamp
                 }
                 
-            except ValueError as e:
-                return {"error": f"Invalid user_id format: {user_id}"}
+            return {
+                "function": "get_risk_prediction",
+                "user_id": matricula_id,
+                "student_info": student_info,
+                "result": prediction_dict
+            }
             
         elif function_name == "search_academic_resources":
             query = args.get("query")
             context_type = args.get("context_type", "academic")
-            user_id = args.get("user_id")  # Get user_id for grade-specific search
+            user_id = args.get("user_id")  # El "user_id" es realmente matricula_id
             
             if not query:
                 return {"error": "Missing query parameter"}
@@ -306,12 +311,12 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
             student_grade = None
             if user_id:
                 try:
-                    student_info = await get_student_info_from_user_id(str(user_id))
+                    student_info = await get_student_info_from_matricula_id(str(user_id))
                     if student_info:
                         student_grade = student_info.get("grado")
-                        logger.info(f"📚 Student grade identified: {student_grade} for user {user_id}")
+                        logger.info(f"📚 Student grade identified: {student_grade} for matricula_id {user_id}")
                 except Exception as e:
-                    logger.warning(f"⚠️ Could not get student grade for user {user_id}: {e}")
+                    logger.warning(f"⚠️ Could not get student grade for matricula_id {user_id}: {e}")
             
             # Call our RAG service with grade context
             rag_result = await rag_service.query_by_grade(
@@ -377,8 +382,10 @@ async def chat_with_mari(request: ChatRequest):
         # If new conversation, add context about getting risk analysis
         if is_new_conversation:
             system_context = f"""
-CONTEXTO INICIAL: Este es el inicio de una nueva conversación con el estudiante (user_id: {request.user_id}).
-ACCIÓN REQUERIDA: Debes INMEDIATAMENTE obtener un análisis de riesgo académico del estudiante usando la función get_risk_prediction con el user_id "{request.user_id}" antes de responder.
+CONTEXTO INICIAL: Este es el inicio de una nueva conversación con el estudiante.
+IDENTIFICADOR DEL ESTUDIANTE: {request.user_id} (usa ESTE NÚMERO EXACTO)
+ACCIÓN REQUERIDA: Debes INMEDIATAMENTE obtener un análisis de riesgo académico del estudiante usando la función get_risk_prediction con el user_id numérico "{request.user_id}" antes de responder.
+IMPORTANTE: SIEMPRE usa el número {request.user_id} como user_id en todas las funciones, NUNCA uses nombres.
 Esto te permitirá personalizar tu respuesta inicial basada en su situación académica actual.
             """
             messages.append({

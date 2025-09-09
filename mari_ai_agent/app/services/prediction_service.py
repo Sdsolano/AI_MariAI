@@ -76,11 +76,13 @@ class MLModelManager:
     def extract_student_features(self, student_id: int) -> Optional[pd.DataFrame]:
         """Extract features for a specific student"""
         try:
-            # SQL query to extract student academic data
+            # SQL query to extract student academic data 
+            # matricula_id parameter = acad_estumatricula.id
+            # Need to get notes via: estumatricula -> matricula_academica -> actividades_notas
             query = """
             WITH student_grades AS (
                 SELECT 
-                    acn.idmatricula,
+                    ma.idestumatricula as matricula_id,
                     COUNT(*) as total_grades,
                     AVG(acn.nota) as average_grade,
                     STDDEV(acn.nota) as grade_std,
@@ -90,26 +92,28 @@ class MLModelManager:
                     MIN(acn.fecha_creacion) as first_activity,
                     MAX(acn.fecha_creacion) as last_activity
                 FROM acad_actividades_notas acn
-                WHERE acn.idmatricula = :student_id_1 
+                JOIN acad_matricula_academica ma ON acn.idmatricula = ma.id
+                WHERE ma.idestumatricula = :student_id_1 
                     AND acn.nota IS NOT NULL
                     AND acn.nota > 0
                     AND acn.estado = 'on'
-                GROUP BY acn.idmatricula
+                GROUP BY ma.idestumatricula
             ),
             grade_distribution AS (
                 SELECT 
-                    idmatricula,
-                    SUM(CASE WHEN nota >= 4.5 THEN 1 ELSE 0 END) as grades_excellent,
-                    SUM(CASE WHEN nota >= 4.0 AND nota < 4.5 THEN 1 ELSE 0 END) as grades_good,
-                    SUM(CASE WHEN nota >= 3.0 AND nota < 4.0 THEN 1 ELSE 0 END) as grades_satisfactory,
-                    SUM(CASE WHEN nota >= 2.0 AND nota < 3.0 THEN 1 ELSE 0 END) as grades_low,
-                    SUM(CASE WHEN nota < 2.0 THEN 1 ELSE 0 END) as grades_very_low
+                    ma.idestumatricula as matricula_id,
+                    SUM(CASE WHEN acn.nota >= 4.5 THEN 1 ELSE 0 END) as grades_excellent,
+                    SUM(CASE WHEN acn.nota >= 4.0 AND acn.nota < 4.5 THEN 1 ELSE 0 END) as grades_good,
+                    SUM(CASE WHEN acn.nota >= 3.0 AND acn.nota < 4.0 THEN 1 ELSE 0 END) as grades_satisfactory,
+                    SUM(CASE WHEN acn.nota >= 2.0 AND acn.nota < 3.0 THEN 1 ELSE 0 END) as grades_low,
+                    SUM(CASE WHEN acn.nota < 2.0 THEN 1 ELSE 0 END) as grades_very_low
                 FROM acad_actividades_notas acn
-                WHERE idmatricula = :student_id_2
-                    AND nota IS NOT NULL
-                    AND nota > 0
-                    AND estado = 'on'
-                GROUP BY idmatricula
+                JOIN acad_matricula_academica ma ON acn.idmatricula = ma.id
+                WHERE ma.idestumatricula = :student_id_2
+                    AND acn.nota IS NOT NULL
+                    AND acn.nota > 0
+                    AND acn.estado = 'on'
+                GROUP BY ma.idestumatricula
             )
             SELECT 
                 sg.*,
@@ -119,7 +123,7 @@ class MLModelManager:
                 gd.grades_low,
                 gd.grades_very_low
             FROM student_grades sg
-            JOIN grade_distribution gd ON sg.idmatricula = gd.idmatricula
+            JOIN grade_distribution gd ON sg.matricula_id = gd.matricula_id
             """
             
             with db_manager.get_session() as session:

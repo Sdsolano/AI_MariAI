@@ -28,7 +28,7 @@ class DatabaseManager:
                 max_overflow=db_settings.ACADEMIC_DB_MAX_OVERFLOW,
                 pool_timeout=db_settings.ACADEMIC_DB_POOL_TIMEOUT,
                 pool_pre_ping=True,
-                echo=False  # Set to True for SQL debugging
+                echo=True  # Set to True for SQL debugging
             )
             
             self.SessionLocal = sessionmaker(
@@ -38,6 +38,7 @@ class DatabaseManager:
             )
             
             logger.info("✅ Database engine initialized successfully")
+            logger.info(f"🔗 Database URL: {db_settings.academic_database_url}")
             
         except Exception as e:
             logger.error(f"❌ Failed to initialize database: {e}")

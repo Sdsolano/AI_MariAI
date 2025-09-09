@@ -6,12 +6,12 @@ from typing import Optional
 class DatabaseSettings(BaseSettings):
     """Configuración de base de datos académica"""
     
-    # Mari AI Academic Database
-    ACADEMIC_DB_HOST: str = "gacademic.jmdatalabs.co"
+    # Mari AI Academic Database - LOCAL SETUP
+    ACADEMIC_DB_HOST: str = "localhost"
     ACADEMIC_DB_PORT: int = 5432
-    ACADEMIC_DB_NAME: str = "estherforero"
-    ACADEMIC_DB_USER: str = "estherforero"
-    ACADEMIC_DB_PASSWORD: str = os.getenv("ACADEMIC_DB_PASSWORD", "")
+    ACADEMIC_DB_NAME: str = "aca_2"
+    ACADEMIC_DB_USER: str = "postgres"
+    ACADEMIC_DB_PASSWORD: str = os.getenv("ACADEMIC_DB_PASSWORD", "samuel1902")
     
     # Connection Pool Settings
     ACADEMIC_DB_POOL_SIZE: int = 10
