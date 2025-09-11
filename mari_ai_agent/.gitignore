@@ -10,4 +10,7 @@ venv/
 # Bases de datos locales
 *.db
 *.sqlite
-mari_ai_grado_*  # Para excluir tus bases Chroma
+
+# Bases de datos Chroma (directorios de grados)
+mari_ai_grado_*/
+mari_ai_grado_*/**
