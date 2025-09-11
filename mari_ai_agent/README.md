@@ -12,7 +12,46 @@ First, install the required packages by running:
 pip install -r requirements.txt
 ```
 
-### 2. Run the Application
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+# Database Configuration
+
+ACADEMIC_DB_HOST=localhost
+ACADEMIC_DB_NAME=your_database_name
+ACADEMIC_DB_USER=your_db_user
+ACADEMIC_DB_PASSWORD=your_db_password
+
+# OpenAI API Configuration
+
+API_KEY=your_openai_api_key
+OPENAI_API_KEY=your_openai_api_key
+
+# Application Configuration
+
+ENVIRONMENT=development
+LOG_LEVEL=INFO
+DEBUG=true
+
+# API Configuration
+
+API_V1_STR=/api/v1
+PROJECT_NAME=Mari AI - Academic Intelligence Agent
+
+
+# CORS Configuration
+
+BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8080","http://localhost:8000"]
+
+# Database Pool Configuration
+
+ACADEMIC_DB_POOL_SIZE=10
+ACADEMIC_DB_MAX_OVERFLOW=20
+ACADEMIC_DB_POOL_TIMEOUT=30
+CACHE_TTL=3600
+
+### 3. Run the Application
 
 Start the development server with:
 
@@ -40,7 +79,6 @@ The main endpoint for interacting with Mari AI is `/api/v1/chat/`. This endpoint
 
 **Request Body:**
 
-
 ```json
 {
   "user_id": "5893",
@@ -59,8 +97,6 @@ The main endpoint for interacting with Mari AI is `/api/v1/chat/`. This endpoint
 ```
 
 **Response:**
-
-
 
 ```json
 {
