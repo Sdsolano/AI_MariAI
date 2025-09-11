@@ -11,11 +11,10 @@ from collections import defaultdict
 import psycopg2
 def obtener_cursos():
     conn = psycopg2.connect(
-        dbname="aca_2",
-        user="sdsolano",
-        password="samuel1902",
-        host="localhost",
-        port="5432"
+       dbname=os.environ["ACADEMIC_DB_NAME"] ,
+        user=os.environ["ACADEMIC_DB_USER"],
+        host=os.environ["ACADEMIC_DB_HOST"],
+        port=os.environ["ACADEMIC_DB_PORT"]
     )
 
     cur = conn.cursor()
@@ -34,7 +33,7 @@ def obtener_cursos():
     cur.execute(query)
     rows = cur.fetchall()
     # Convertir a diccionario {file_path: grado}
-    result = {os.path.join('C:\\Users\\samue\\Downloads\\backend-academico-main\\backend-academico-main',row[0]): row[1] for row in rows}
+    result = {os.path.join(os.environ["FOLDER_PATH"],row[0]): row[1] for row in rows}
     print(result)
 
 
