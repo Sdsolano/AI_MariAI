@@ -66,54 +66,54 @@ app.include_router(api_router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup_event():
     """Application startup event"""
-    logger.info("🚀 MARI AI AGENT - STARTING UP")
+    logger.info("MARI AI AGENT - STARTING UP")
     logger.info("="*50)
     
     # Test database connection
     logger.info("🔌 Testing database connection...")
     try:
         if db_manager.test_connection():
-            logger.info("✅ Database connection successful")
+            logger.info("Database connection successful")
         else:
-            logger.error("❌ Database connection failed")
+            logger.error("Database connection failed")
             raise Exception("Database connection failed")
     except Exception as e:
-        logger.error(f"❌ Database error: {e}")
+        logger.error(f"Database error: {e}")
         # Don't fail startup, but log the error
     
     # Load ML models
-    logger.info("🤖 Loading ML models...")
+    logger.info(" Loading ML models...")
     try:
         success = ml_manager.load_models()
         if success:
-            logger.info("✅ ML models loaded successfully")
+            logger.info("ML models loaded successfully")
             logger.info(f"   Available models: {list(ml_manager.models.keys())}")
             logger.info(f"   Active model: {ml_manager.active_model}")
         else:
-            logger.warning("⚠️ Some ML models failed to load")
+            logger.warning(" Some ML models failed to load")
     except Exception as e:
-        logger.error(f"❌ ML models loading error: {e}")
+        logger.error(f" ML models loading error: {e}")
         # Don't fail startup, but log the error
     
-    logger.info("✅ MARI AI AGENT - STARTUP COMPLETE")
+    logger.info(" MARI AI AGENT - STARTUP COMPLETE")
     logger.info("="*50)
-    logger.info("📖 API Documentation: http://localhost:8000/docs")
-    logger.info("🔍 Alternative docs: http://localhost:8000/redoc")
-    logger.info("💡 Health check: http://localhost:8000/api/v1/health/")
+    logger.info(" API Documentation: http://localhost:8000/docs")
+    logger.info(" Alternative docs: http://localhost:8000/redoc")
+    logger.info(" Health check: http://localhost:8000/api/v1/health/")
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Application shutdown event"""
-    logger.info("🛑 MARI AI AGENT - SHUTTING DOWN")
+    logger.info(" MARI AI AGENT - SHUTTING DOWN")
     
     # Cleanup database connections
     try:
         # db_manager.close_connections()  # Commented out as method doesn't exist
-        logger.info("✅ Database connections closed")
+        logger.info(" Database connections closed")
     except Exception as e:
-        logger.error(f"❌ Error closing database connections: {e}")
+        logger.error(f" Error closing database connections: {e}")
     
-    logger.info("✅ MARI AI AGENT - SHUTDOWN COMPLETE")
+    logger.info(" MARI AI AGENT - SHUTDOWN COMPLETE")
 
 @app.get("/")
 async def root():
@@ -123,10 +123,10 @@ async def root():
         "version": "1.0.0",
         "status": "operational",
         "features": {
-            "academic_risk_prediction": "✅ Operational",
-            "personalized_recommendations": "🔄 In Development", 
-            "chat_assistant": "✅ Operational",
-            "automated_alerts": "🔄 In Development"
+            "academic_risk_prediction": " Operational",
+            "personalized_recommendations": " In Development", 
+            "chat_assistant": " Operational",
+            "automated_alerts": " In Development"
         },
         "endpoints": {
             "health": "/api/v1/health/",
@@ -172,7 +172,7 @@ async def system_status():
         }
         
     except Exception as e:
-        logger.error(f"❌ Error checking system status: {e}")
+        logger.error(f" Error checking system status: {e}")
         raise HTTPException(status_code=500, detail="Error checking system status")
 
 @app.post("/procesar-carpeta/")

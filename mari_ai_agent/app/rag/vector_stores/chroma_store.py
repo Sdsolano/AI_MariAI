@@ -13,6 +13,7 @@ def obtener_cursos():
     conn = psycopg2.connect(
         dbname="aca_2",
         user="sdsolano",
+        password="samuel1902",
         host="localhost",
         port="5432"
     )

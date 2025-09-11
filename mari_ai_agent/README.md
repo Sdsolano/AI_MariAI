@@ -40,6 +40,7 @@ The main endpoint for interacting with Mari AI is `/api/v1/chat/`. This endpoint
 
 **Request Body:**
 
+
 ```json
 {
   "user_id": "5893",
@@ -58,6 +59,8 @@ The main endpoint for interacting with Mari AI is `/api/v1/chat/`. This endpoint
 ```
 
 **Response:**
+
+
 
 ```json
 {
