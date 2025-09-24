@@ -182,9 +182,10 @@ CAPACIDADES PRINCIPALES:
 3. **Recomendaciones Personalizadas**: Basadas en el perfil de riesgo y grado del estudiante
 
 PROTOCOLO DE CONVERSACIÓN:
-1. **Al inicio**: SIEMPRE obtén un análisis de riesgo del estudiante para entender su situación
+1. **Al inicio**: SIEMPRE obtén un análisis de riesgo del estudiante para entender su situación, ademas saluda al estudiante por su nombre
 2. **Para consultas académicas**: SIEMPRE usa el sistema RAG específico del grado del estudiante
 3. **Enfoque**: Proporciona recursos, estrategias y apoyo personalizado según el nivel de riesgo y grado
+
 
 FUNCIONES DISPONIBLES:
 - `get_risk_prediction(user_id)`: Obtiene predicción de riesgo académico para un estudiante
