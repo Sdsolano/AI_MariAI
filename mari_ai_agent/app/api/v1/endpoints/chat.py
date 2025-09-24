@@ -2,7 +2,7 @@
 """
 Main Chat endpoint for Mari AI Agent - Gateway to all AI functionality
 """
-
+import uuid
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel
@@ -12,7 +12,7 @@ from datetime import datetime
 from openai import OpenAI
 import os
 from enum import Enum
-
+import sqlite3
 # Import our internal services
 from app.services.prediction_service import ml_manager
 from app.services.rag_service import RAGService
@@ -142,21 +142,29 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     user_id: str
     message: str
-    conversation_history: Optional[List[ChatMessage]] = []
+    # AÑADIMOS ESTO para identificar la conversación
+    conversation_id: Optional[str] = None 
     context: Optional[Dict[str, Any]] = {}
+
+class ChatResponse(BaseModel):
+    response: str
+    user_id: str
+    # AÑADIMOS ESTO para que el cliente sepa qué conversación seguir
+    conversation_id: str
+    risk_analysis: Optional[Dict[str, Any]] = None
+    function_calls_made: Optional[List[str]] = []
+    timestamp: str
+    confidence: Optional[float] = None
 
 class FunctionCall(BaseModel):
     name: str
     arguments: str
 
-class ChatResponse(BaseModel):
-    response: str
-    user_id: str
-    risk_analysis: Optional[Dict[str, Any]] = None
-    function_calls_made: Optional[List[str]] = []
-    conversation_history: List[ChatMessage]
-    timestamp: str
-    confidence: Optional[float] = None
+
+
+
+
+
 
 # System prompt for the educational assistant
 EDUCATIONAL_ASSISTANT_PROMPT = """
@@ -236,6 +244,108 @@ FUNCTION_DEFINITIONS = [
         }
     }
 ]
+
+
+
+
+
+
+
+
+
+
+
+DATABASE_FILE = "chat_history.db"
+
+def init_db():
+    """Inicializa la DB y crea la tabla si no existe."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS historial_chat (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            idmatricula INTEGER NOT NULL,
+            conversation_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_historial_chat_conv ON historial_chat (conversation_id, timestamp);
+    """)
+    conn.commit()
+    conn.close()
+    logger.info(f"✅ Base de datos local '{DATABASE_FILE}' inicializada.")
+
+
+
+def save_message_to_db(matricula_id: int, conversation_id: str, role: str, content: str):
+    """Guarda un mensaje en la base de datos SQLite."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    timestamp = datetime.now().isoformat()
+    cursor.execute(
+        "INSERT INTO historial_chat (idmatricula, conversation_id, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+        (matricula_id, conversation_id, role, content, timestamp)
+    )
+    conn.commit()
+    conn.close()
+
+def load_history_from_db(conversation_id: str, limit: int = 10) -> List[Dict[str, str]]:
+    """Carga el historial de una conversación desde SQLite."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT role, content FROM historial_chat WHERE conversation_id = ? ORDER BY timestamp DESC LIMIT ?",
+        (conversation_id, limit)
+    )
+    history = [dict(row) for row in reversed(cursor.fetchall())]
+    conn.close()
+    return history
+
+def trim_history_in_db(conversation_id: str, max_size: int = 10):
+    """Borra los mensajes más antiguos de una conversación en SQLite si supera max_size."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    query = """
+        DELETE FROM historial_chat
+        WHERE id IN (
+            SELECT id FROM historial_chat
+            WHERE conversation_id = ?
+            ORDER BY timestamp ASC
+            LIMIT MAX(0, (SELECT COUNT(*) FROM historial_chat WHERE conversation_id = ?) - ?)
+        )
+    """
+    cursor.execute(query, (conversation_id, conversation_id, max_size))
+    conn.commit()
+    conn.close()
+    logger.info(f"🧹 Historial recortado para la conversación {conversation_id}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async def execute_function_call(function_name: str, arguments: str) -> Dict[str, Any]:
     """
@@ -340,71 +450,56 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
         logger.error(f"❌ Error executing function {function_name}: {e}")
         return {"error": f"Function execution failed: {str(e)}"}
 
+
+
+
+
+
 @router.post("/", response_model=ChatResponse)
 async def chat_with_mari(request: ChatRequest):
     """
-    Main chat endpoint - Gateway to Mari AI Agent
-    
-    This is the primary endpoint that integrates:
-    - Risk prediction analysis
-    - RAG system for academic queries  
-    - GPT-4.1 conversational AI
-    
-    The system automatically:
-    1. Analyzes student risk at conversation start
-    2. Uses RAG for any academic queries
-    3. Provides personalized recommendations
+    Endpoint de chat principal con memoria persistente en DB,
+    limitada a los últimos 10 mensajes (estilo pila).
     """
     try:
-        logger.info(f"💬 Chat request from user: {request.user_id}")
+        matricula_id = int(request.user_id)
+        MAX_MESSAGES = 10
         
-        # Build conversation history
-        messages = [
-            {"role": "system", "content": EDUCATIONAL_ASSISTANT_PROMPT}
-        ]
+        logger.info(f"💬 Chat request from user: {matricula_id}")
+
+        # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
+        conversation_id = request.conversation_id or str(uuid.uuid4())
+        history_from_db = load_history_from_db(conversation_id, limit=MAX_MESSAGES)
+
+        # 2. CONSTRUIR EL PROMPT PARA OPENAI (VERSIÓN CORREGIDA)
+        messages = [{"role": "system", "content": EDUCATIONAL_ASSISTANT_PROMPT}]
+        messages.extend(history_from_db)
         
-        # Add conversation history
-        for msg in request.conversation_history:
-            messages.append({
-                "role": msg.role,
-                "content": msg.content
-            })
+        # --- CAMBIO 1: VOLVEMOS A AÑADIR EL ID AL MENSAJE ---
+        user_message_with_context = f"[STUDENT_ID: {matricula_id}] {request.message}"
+        messages.append({"role": "user", "content": user_message_with_context})
         
-        # Add current user message with persistent user_id context
-        user_message_with_context = f"[STUDENT_ID: {request.user_id}] {request.message}"
-        messages.append({
-            "role": "user", 
-            "content": user_message_with_context
-        })
-        
-        # Check if this is the start of conversation (no history)
-        is_new_conversation = len(request.conversation_history) == 0
-        
-        # Always add context about the student ID (not just for new conversations)
+        # --- CAMBIO 2: VOLVEMOS A AÑADIR EL MENSAJE DE SISTEMA FORZANDO EL ID ---
         system_context = f"""
 IDENTIFICADOR PERSISTENTE DEL ESTUDIANTE: {request.user_id}
 REGLA CRÍTICA: SIEMPRE usa EXACTAMENTE el número {request.user_id} como user_id en TODAS las funciones.
-NO INVENTES números como 12345 o cualquier otro. USA SOLAMENTE: {request.user_id}
+NO INVENTES números. USA SOLAMENTE: {request.user_id}
         """
-        messages.append({
-            "role": "system",
-            "content": system_context
-        })
+        messages.append({"role": "system", "content": system_context})
         
-        # If new conversation, add context about getting risk analysis  
+        # --- CAMBIO 3: VOLVEMOS A DETECTAR SI ES UNA CONVERSACIÓN NUEVA ---
+        # Si no hay historial en la DB, es el primer mensaje.
+        is_new_conversation = not history_from_db
         if is_new_conversation:
             initial_context = f"""
 ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
 Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_prediction con user_id "{request.user_id}".
             """
-            messages.append({
-                "role": "system",
-                "content": initial_context
-            })
-        
-        # Call GPT-4.1 with function calling
+            messages.append({"role": "system", "content": initial_context})
+
+        # 3. LLAMAR A OPENAI Y PROCESAR RESPUESTA (tu lógica original completa)
         response = client.chat.completions.create(
-            model="gpt-4-1106-preview",  # GPT-4 Turbo (latest available)
+            model="gpt-4-1106-preview",
             messages=messages,
             tools=[{"type": "function", "function": func} for func in FUNCTION_DEFINITIONS],
             tool_choice="auto",
@@ -415,84 +510,68 @@ Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_p
         assistant_message = response.choices[0].message
         function_calls_made = []
         risk_analysis = None
-        
-        # Handle function calls
+        final_content = ""
+
         if assistant_message.tool_calls:
             tool_call = assistant_message.tool_calls[0]
             function_call = tool_call.function
-            function_name = function_call.name
-            function_args = function_call.arguments
+            function_name, function_args = function_call.name, function_call.arguments
             
             logger.info(f"🎯 GPT requested function call: {function_name}")
-            
-            # Execute the function
             function_result = await execute_function_call(function_name, function_args)
             function_calls_made.append(function_name)
-            
-            # Store risk analysis if it was called
+
             if function_name == "get_risk_prediction":
                 risk_analysis = function_result.get("result")
-            
-            # Add function result back to conversation
-            messages.append({
-                "role": "assistant",
-                "content": assistant_message.content or f"Llamando función {function_name}...",
-                "tool_calls": assistant_message.tool_calls
-            })
-            
+
+            messages.append(assistant_message)
             messages.append({
                 "role": "tool",
                 "tool_call_id": tool_call.id,
                 "content": json.dumps(function_result, ensure_ascii=False, default=str)
             })
-            
-            # Get the final response from GPT with function result
+
             final_response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
-                messages=messages,
-                temperature=0.7,
-                max_tokens=1500
+                model="gpt-4-1106-preview", messages=messages, temperature=0.7, max_tokens=1500
             )
-            
             final_content = final_response.choices[0].message.content
-            
         else:
             final_content = assistant_message.content
         
-        # Build updated conversation history
-        updated_history = []
-        for msg in request.conversation_history:
-            updated_history.append(msg)
+        # 4. GUARDAR Y RECORTAR EN LA DB
+        save_message_to_db(matricula_id, conversation_id, "user", request.message)
+        save_message_to_db(matricula_id, conversation_id, "assistant", final_content)
+        trim_history_in_db(conversation_id, max_size=MAX_MESSAGES)
         
-        # Add user message
-        updated_history.append(ChatMessage(
-            role=MessageRole.USER,
-            content=request.message,
-            timestamp=datetime.now().isoformat()
-        ))
+        logger.info(f"✅ Respuesta generada para el usuario: {matricula_id}")
         
-        # Add assistant response
-        updated_history.append(ChatMessage(
-            role=MessageRole.ASSISTANT,
-            content=final_content,
-            timestamp=datetime.now().isoformat()
-        ))
-        
-        logger.info(f"✅ Chat response generated for user: {request.user_id}")
-        
+        # 5. DEVOLVER LA RESPUESTA AL CLIENTE
         return ChatResponse(
             response=final_content,
             user_id=request.user_id,
+            conversation_id=conversation_id,
             risk_analysis=risk_analysis,
             function_calls_made=function_calls_made,
-            conversation_history=updated_history,
             timestamp=datetime.now().isoformat(),
             confidence=0.9
         )
         
     except Exception as e:
-        logger.error(f"❌ Error in chat endpoint: {e}")
-        raise HTTPException(status_code=500, detail=f"Error processing chat request: {str(e)}")
+        logger.error(f"❌ Error en el endpoint de chat: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error al procesar la solicitud: {str(e)}")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @router.get("/health")
 async def chat_health_check():
@@ -528,7 +607,10 @@ async def chat_health_check():
     except Exception as e:
         logger.error(f"❌ Error in chat health check: {e}")
         raise HTTPException(status_code=500, detail="Error checking chat system health")
-
+@router.on_event("startup")
+async def startup_event():
+    """Función que se ejecuta al iniciar la aplicación para crear la DB."""
+    init_db()
 @router.get("/config")
 async def get_chat_config():
     """
