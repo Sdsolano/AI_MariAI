@@ -51,26 +51,26 @@ class MLModelManager:
             # Load metadata
             if metadata_file.exists():
                 self.metadata = joblib.load(metadata_file)
-                logger.info(f"✅ Metadata loaded: {list(self.metadata.keys())}")
+                logger.info(f" Metadata loaded: {list(self.metadata.keys())}")
             
             # Load models
             for model_name, filename in model_files.items():
                 model_path = self.models_path / filename
                 if model_path.exists():
                     self.models[model_name] = joblib.load(model_path)
-                    logger.info(f"✅ Model loaded: {model_name}")
+                    logger.info(f" Model loaded: {model_name}")
                 else:
-                    logger.warning(f"⚠️ Model not found: {model_path}")
+                    logger.warning(f" Model not found: {model_path}")
             
             if not self.models:
-                logger.error("❌ No models loaded!")
+                logger.error(" No models loaded!")
                 return False
                 
-            logger.info(f"🚀 Models loaded successfully: {list(self.models.keys())}")
+            logger.info(f" Models loaded successfully: {list(self.models.keys())}")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error loading models: {e}")
+            logger.error(f" Error loading models: {e}")
             return False
     
     def extract_student_features(self, student_id: int) -> Optional[pd.DataFrame]:

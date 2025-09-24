@@ -23,12 +23,12 @@ router = APIRouter()
 @router.on_event("startup")
 async def load_ml_models():
     """Load ML models on startup"""
-    logger.info("🚀 Loading ML models...")
+    logger.info("Loading ML models...")
     success = ml_manager.load_models()
     if not success:
-        logger.error("❌ Failed to load ML models!")
+        logger.error(" Failed to load ML models!")
     else:
-        logger.info("✅ ML models loaded successfully")
+        logger.info("ML models loaded successfully")
 
 @router.post("/risk/{student_id}", response_model=PredictionResponse)
 async def predict_student_risk(

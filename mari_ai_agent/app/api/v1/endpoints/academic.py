@@ -2,7 +2,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
-
 from app.db.session import get_db
 from app.services.academic_service import AcademicDataService, AcademicStatsService
 from app.schemas.academic_schemas import (
