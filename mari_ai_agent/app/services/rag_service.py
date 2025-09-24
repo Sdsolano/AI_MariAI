@@ -21,6 +21,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.schema import Document
 
+# Import websearch functionality
+from app.rag.retrievers.grade_retriever import buscar_con_websearch, extraer_respuesta_y_citas
+
 logger = logging.getLogger(__name__)
 
 class RAGService:
@@ -402,12 +405,27 @@ Respuesta:"""
             if retrieved_docs:
                 response_data = await self.generate_response(query, retrieved_docs)
             else:
-                # No relevant documents found, provide a default response
-                response_data = {
-                    "generated_response": f"Lo siento, no pude encontrar información específica sobre '{query}' en la base de conocimientos académica. ¿Podrías reformular tu pregunta o ser más específico?",
-                    "confidence_score": 0.1,
-                    "context_used": []
-                }
+                # No relevant documents found, use websearch fallback
+                logger.warning("No relevant documents found, using websearch fallback")
+                
+                try:
+                    search_prompt = f"{query}. Importante, Busca únicamente información en Google académico, evita sitios como wikipedia, foros, etc."
+                    websearch_context = buscar_con_websearch(search_prompt)
+                    
+                    response_data = {
+                        "generated_response": f"No encontré información específica en mi base de conocimientos sobre '{query}', pero he buscado información actualizada en internet:\n\n{websearch_context}",
+                        "confidence_score": 0.6,  # Lower confidence since it's from websearch
+                        "context_used": [websearch_context],
+                        "source": "websearch"
+                    }
+                    
+                except Exception as e:
+                    logger.error(f"❌ Websearch fallback failed: {e}")
+                    response_data = {
+                        "generated_response": f"Lo siento, no encontré información específica sobre '{query}' ni en mi base de conocimientos ni en la búsqueda web. ¿Podrías reformular tu pregunta o ser más específico?",
+                        "confidence_score": 0.0,
+                        "context_used": []
+                    }
             
             # Compile complete response
             return {
@@ -488,17 +506,40 @@ Respuesta:"""
             )
             
             if not retrieved_docs:
-                logger.warning("No relevant documents found for grade-specific search")
-                return {
-                    "query": query,
-                    "retrieved_documents": [],
-                    "generated_response": f"Lo siento, no encontré información específica sobre '{query}' en el contenido de tu grado ({self._normalize_grade_name(grade) if grade else 'general'}). ¿Podrías ser más específico o reformular tu pregunta?",
-                    "context_used": [],
-                    "confidence_score": 0.0,
-                    "grade_context": self._normalize_grade_name(grade) if grade else "academic",
-                    "context_type": context_type,
-                    "timestamp": datetime.now().isoformat()
-                }
+                logger.warning("No relevant documents found for grade-specific search, using websearch fallback")
+                
+                # Fallback to websearch when no relevant documents are found in RAG
+                try:
+                    search_prompt = f"{query}. Importante, Busca únicamente información en Google académico, evita sitios como wikipedia, foros, etc."
+                    websearch_context = buscar_con_websearch(search_prompt)
+                    
+                    # Generate response based on websearch results
+                    generated_response = f"No encontré información específica en mi base de conocimientos sobre '{query}', pero he buscado información actualizada en internet:\n\n{websearch_context}"
+                    
+                    return {
+                        "query": query,
+                        "retrieved_documents": [],
+                        "generated_response": generated_response,
+                        "context_used": [websearch_context],
+                        "confidence_score": 0.6,  # Lower confidence since it's from websearch
+                        "grade_context": self._normalize_grade_name(grade) if grade else "academic",
+                        "context_type": "websearch_fallback",
+                        "timestamp": datetime.now().isoformat(),
+                        "source": "websearch"
+                    }
+                    
+                except Exception as e:
+                    logger.error(f"❌ Websearch fallback failed: {e}")
+                    return {
+                        "query": query,
+                        "retrieved_documents": [],
+                        "generated_response": f"Lo siento, no encontré información específica sobre '{query}' ni en mi base de conocimientos ni en la búsqueda web. ¿Podrías ser más específico o reformular tu pregunta?",
+                        "context_used": [],
+                        "confidence_score": 0.0,
+                        "grade_context": self._normalize_grade_name(grade) if grade else "academic",
+                        "context_type": context_type,
+                        "timestamp": datetime.now().isoformat()
+                    }
             
             # Step 2: Generate response based on retrieved documents
             response_data = await self.generate_response(query, retrieved_docs)
