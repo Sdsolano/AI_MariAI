@@ -10,9 +10,9 @@ import logging
 from datetime import datetime
 
 from app.api.v1.models.prediction import (
-    PredictionRequest, PredictionResponse, BatchPredictionRequest, 
+     PredictionResponse, BatchPredictionRequest, 
     BatchPredictionResponse, ModelsStatusResponse, ModelEvaluationRequest,
-    ModelEvaluationResponse, ErrorResponse, RiskLevel
+    ModelEvaluationResponse, ErrorResponse, RiskLevel,PredictionBody
 )
 from app.services.prediction_service import ml_manager
 
@@ -32,46 +32,44 @@ async def load_ml_models():
 
 @router.post("/risk/{student_id}", response_model=PredictionResponse)
 async def predict_student_risk(
-    student_id: int,
-    model_name: Optional[str] = None
+    student_id: int,          # <<< Viene de la URL (ej: /risk/123)
+    body: PredictionBody      # <<< Viene del cuerpo (body) de la petición
 ):
     """
-    Predict academic risk for a specific student
-    
-    - **student_id**: Student ID to predict risk for
-    - **model_name**: Optional specific model to use (default: random_forest)
+    Predict academic risk for a specific student.
+    - student_id is from the URL path.
+    - database_url is from the request body.
     """
     try:
         logger.info(f"🎯 Predicting risk for student {student_id}")
-        
-        # Validate student_id
+
+        # La validación del student_id sigue funcionando igual
         if student_id <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid student_id: {student_id}"
-            )
-        
-        # Make prediction
-        prediction = ml_manager.predict_risk(student_id, model_name)
-        
+            raise HTTPException(status_code=400, detail=f"Invalid student_id: {student_id}")
+
+        # Llamamos al servicio usando los datos de ambas fuentes
+        prediction = ml_manager.predict_risk(
+            student_id=student_id,         # <<< De la URL
+            db_url=body.database_url,      # <<< Del body
+            #model_name=body.model_name     # <<< Del body
+        )
+
         if prediction is None:
             raise HTTPException(
                 status_code=404,
-                detail=f"Could not generate prediction for student {student_id}. Check if student exists and has academic data."
+                detail=f"Could not generate prediction for student {student_id}."
             )
-        
+
         logger.info(f"✅ Prediction successful: Student {student_id} -> {prediction.risk_level}")
         return prediction
-        
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"❌ Error predicting risk for student {student_id}: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Internal error processing prediction: {str(e)}"
+            detail=f"Internal error predicting risk for student {student_id}: {str(e)}"
         )
-
 @router.post("/batch", response_model=BatchPredictionResponse)
 async def predict_batch_risks(
     request: BatchPredictionRequest,

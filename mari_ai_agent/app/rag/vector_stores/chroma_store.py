@@ -9,14 +9,8 @@ import os
 from dotenv import load_dotenv
 from collections import defaultdict
 import psycopg2
-def obtener_cursos():
-    conn = psycopg2.connect(
-       dbname=os.environ["ACADEMIC_DB_NAME"] ,
-        user=os.environ["ACADEMIC_DB_USER"],
-        host=os.environ["ACADEMIC_DB_HOST"],
-        port=os.environ["ACADEMIC_DB_PORT"]
-    )
-
+def obtener_cursos(db_url):
+    conn = psycopg2.connect(dsn=db_url)
     cur = conn.cursor()
 
     query = """
@@ -46,7 +40,7 @@ def take_key():
     return api_key
 
 
-def generate_db_from_dict(file_dict):
+def generate_db_from_dict(file_dict,db_url):
     """
     file_dict: diccionario {file_path: grado}
     Genera una base Chroma por cada grado, con todos los archivos de ese grado.
@@ -88,7 +82,7 @@ def generate_db_from_dict(file_dict):
         vectordb = Chroma.from_documents(
             documents=split_docs,
             embedding=embeddings,
-            persist_directory=f"mari_ai_grado_{grade}"
+            persist_directory=f"mari_ai_grado_{grade}_{db_url.rsplit('/', 1)[-1]}"  # Usar parte del db_url para diferenciar
         )
         vectordb.persist()
         print(f"Base vectorial creada correctamente para grado {grade}.")

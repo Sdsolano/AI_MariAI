@@ -198,6 +198,7 @@ class RAGService:
     async def retrieve_documents_by_grade(
         self, 
         query: str, 
+        db_url: str,
         grade: Optional[str] = None,
         context_type: str = "academic",
         max_results: int = 5,
@@ -206,7 +207,9 @@ class RAGService:
         """Retrieve documents from grade-specific ChromaDB store"""
         try:
             logger.info(f"🎓 Retrieving documents by grade: '{grade}' for query: '{query}'")
-            
+            logger.info("xxx"*50)
+            logger.info(f" '{db_url.rsplit('/', 1)[-1]}'")
+            logger.info("xxx"*50)
             # Normalize grade name
             normalized_grade = self._normalize_grade_name(grade) if grade else "academic"
             
@@ -215,7 +218,7 @@ class RAGService:
             from langchain.vectorstores import Chroma
             from langchain.embeddings import OpenAIEmbeddings
             
-            grade_db_path = Path(f"mari_ai_grado_{normalized_grade}")
+            grade_db_path = Path(f"mari_ai_grado_{normalized_grade}_{db_url.rsplit('/', 1)[-1]}")
             
             if grade_db_path.exists():
                 logger.info(f"📚 Using grade-specific database: {grade_db_path}")
@@ -489,6 +492,7 @@ Respuesta:"""
     async def query_by_grade(
         self, 
         query: str, 
+        db_url: str,
         grade: Optional[str] = None,
         context_type: str = "academic"
     ) -> Dict[str, Any]:
@@ -500,6 +504,7 @@ Respuesta:"""
             retrieved_docs = await self.retrieve_documents_by_grade(
                 query=query,
                 grade=grade,
+                db_url=db_url,
                 context_type=context_type,
                 max_results=5,
                 similarity_threshold=0.7

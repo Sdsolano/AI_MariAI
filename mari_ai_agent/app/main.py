@@ -33,7 +33,9 @@ class RetrieveRequest(BaseModel):
     query: str
     umbral: float
     k: int
-
+class ProcessingRequest(BaseModel):
+    db_url: str
+    
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,
@@ -139,10 +141,20 @@ async def root():
         }
     }
 @app.post("/procesar-carpeta-dict/")
-def procesar_carpeta_endpoint():
-    generate_db_from_dict(obtener_cursos())
-    return {"status": "ok"}
-
+def procesar_carpeta_endpoint(request: ProcessingRequest): # Se recibe el request
+    """
+    Endpoint dinámico que procesa los recursos de una base de datos específica
+    y genera los vector stores correspondientes para ese tenant.
+    """
+    # Se usan los datos del request para llamar a las funciones
+    diccionario_archivos = obtener_cursos(
+        db_url=request.db_url
+    )
+    
+    generate_db_from_dict(
+        file_dict=diccionario_archivos, 
+        db_url=request.db_url
+    )
 @app.get("/status")
 async def system_status():
     """System status endpoint"""

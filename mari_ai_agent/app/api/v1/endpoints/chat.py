@@ -30,13 +30,13 @@ rag_service = RAGService()
 # OpenAI Configuration
 client = OpenAI(api_key=os.environ["API_KEY"] )
 
-async def get_student_id_from_user_id(user_id: str) -> Optional[int]:
+async def get_student_id_from_user_id(user_id: str, db_url: str) -> Optional[int]:
     """
     Convert user_id to student_id (idmatricula) by following the database relationships:
     user_id → usua_usuarios.id → estu_estudiantes.idusuario → acad_estumatricula.idestudiante → idmatricula
     """
     try:
-        with db_manager.get_session() as session:
+        with db_manager.get_session_for_url(db_url) as session:
             # Query to get idmatricula from user_id
             query = text("""
                 SELECT em.id as idmatricula, e.identificacion, e.primer_nombre, e.primer_apellido
@@ -65,14 +65,14 @@ async def get_student_id_from_user_id(user_id: str) -> Optional[int]:
         logger.error(f"❌ Error resolving user_id to student_id: {e}")
         return None
 
-async def get_student_info_from_matricula_id(matricula_id: str) -> Optional[Dict[str, Any]]:
+async def get_student_info_from_matricula_id(matricula_id: str, db_url: str) -> Optional[Dict[str, Any]]:
     """
     Get complete student information from matricula_id
     """
     logger.info(f"🔍 [DEBUG] Getting student info from matricula_id: {matricula_id}")
     
     try:
-        with db_manager.get_session() as session:
+        with db_manager.get_session_for_url(db_url) as session:
             
             # Query directa con matricula_id - simple y directo
             query = text("""
@@ -142,6 +142,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     user_id: str
     message: str
+    db_url: str
     # AÑADIMOS ESTO para identificar la conversación
     conversation_id: Optional[str] = None 
     context: Optional[Dict[str, Any]] = {}
@@ -218,7 +219,7 @@ FUNCTION_DEFINITIONS = [
                     "description": "User ID del estudiante para obtener predicción de riesgo (se resuelve automáticamente al student_id)"
                 }
             },
-            "required": ["user_id"]
+            "required": ["user_id", "db_url"]
         }
     },
     {
@@ -279,50 +280,112 @@ def init_db():
     conn.close()
     logger.info(f"✅ Base de datos local '{DATABASE_FILE}' inicializada.")
 
-
-
-def save_message_to_db(matricula_id: int, conversation_id: str, role: str, content: str):
-    """Guarda un mensaje en la base de datos SQLite."""
+def save_message_to_db(matricula_id: int, db_url: str, role: str, content: str):
+    """
+    Guarda un mensaje en la base de datos SQLite.
+    La db_url se guarda en la columna conversation_id.
+    """
+    # <<< CAMBIO: Se renombró el parámetro 'conversation_id' a 'db_url' para mayor claridad.
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     timestamp = datetime.now().isoformat()
     cursor.execute(
         "INSERT INTO historial_chat (idmatricula, conversation_id, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-        (matricula_id, conversation_id, role, content, timestamp)
+        # <<< CAMBIO: Se pasa 'db_url' en la posición de 'conversation_id'.
+        (matricula_id, db_url, role, content, timestamp)
     )
     conn.commit()
     conn.close()
 
-def load_history_from_db(conversation_id: str, limit: int = 10) -> List[Dict[str, str]]:
-    """Carga el historial de una conversación desde SQLite."""
+def load_history_from_db(matricula_id: int, db_url: str, limit: int = 10) -> List[Dict[str, str]]:
+    """Carga el historial de una conversación usando matricula_id y db_url."""
+    # <<< CAMBIO: La función ahora requiere 'matricula_id' y 'db_url'.
     conn = sqlite3.connect(DATABASE_FILE)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT role, content FROM historial_chat WHERE conversation_id = ? ORDER BY timestamp DESC LIMIT ?",
-        (conversation_id, limit)
-    )
+    
+    # <<< CAMBIO: El WHERE ahora filtra por ambas columnas.
+    query = """
+        SELECT role, content 
+        FROM historial_chat 
+        WHERE idmatricula = ? AND conversation_id = ? 
+        ORDER BY timestamp DESC 
+        LIMIT ?
+    """
+    
+    # <<< CAMBIO: Se pasan ambos identificadores a la consulta.
+    cursor.execute(query, (matricula_id, db_url, limit))
+    
     history = [dict(row) for row in reversed(cursor.fetchall())]
     conn.close()
     return history
 
-def trim_history_in_db(conversation_id: str, max_size: int = 10):
-    """Borra los mensajes más antiguos de una conversación en SQLite si supera max_size."""
+def trim_history_in_db(matricula_id: int, db_url: str, max_size: int = 10):
+    """Borra los mensajes más antiguos de una conversación si supera max_size."""
+    # <<< CAMBIO: La función ahora requiere 'matricula_id' y 'db_url'.
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
+    
+    # <<< CAMBIO: El WHERE se actualiza en la subconsulta para usar ambos identificadores.
     query = """
         DELETE FROM historial_chat
         WHERE id IN (
             SELECT id FROM historial_chat
-            WHERE conversation_id = ?
+            WHERE idmatricula = ? AND conversation_id = ?
             ORDER BY timestamp ASC
-            LIMIT MAX(0, (SELECT COUNT(*) FROM historial_chat WHERE conversation_id = ?) - ?)
+            LIMIT MAX(0, (SELECT COUNT(*) FROM historial_chat WHERE idmatricula = ? AND conversation_id = ?) - ?)
         )
     """
-    cursor.execute(query, (conversation_id, conversation_id, max_size))
+    
+    # <<< CAMBIO: Se pasan los parámetros correspondientes a cada '?' en la consulta.
+    cursor.execute(query, (matricula_id, db_url, matricula_id, db_url, max_size))
+    
     conn.commit()
     conn.close()
-    logger.info(f"🧹 Historial recortado para la conversación {conversation_id}")
+    logger.info(f"🧹 Historial recortado para la conversación de matricula {matricula_id}")
+
+# def save_message_to_db(matricula_id: int, conversation_id: str, role: str, content: str):
+#     """Guarda un mensaje en la base de datos SQLite."""
+#     conn = sqlite3.connect(DATABASE_FILE)
+#     cursor = conn.cursor()
+#     timestamp = datetime.now().isoformat()
+#     cursor.execute(
+#         "INSERT INTO historial_chat (idmatricula, conversation_id, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+#         (matricula_id, conversation_id, role, content, timestamp)
+#     )
+#     conn.commit()
+#     conn.close()
+
+# def load_history_from_db(conversation_id: str, limit: int = 10) -> List[Dict[str, str]]:
+#     """Carga el historial de una conversación desde SQLite."""
+#     conn = sqlite3.connect(DATABASE_FILE)
+#     conn.row_factory = sqlite3.Row
+#     cursor = conn.cursor()
+#     cursor.execute(
+#         "SELECT role, content FROM historial_chat WHERE conversation_id = ? ORDER BY timestamp DESC LIMIT ?",
+#         (conversation_id, limit)
+#     )
+#     history = [dict(row) for row in reversed(cursor.fetchall())]
+#     conn.close()
+#     return history
+
+# def trim_history_in_db(conversation_id: str, max_size: int = 10):
+#     """Borra los mensajes más antiguos de una conversación en SQLite si supera max_size."""
+#     conn = sqlite3.connect(DATABASE_FILE)
+#     cursor = conn.cursor()
+#     query = """
+#         DELETE FROM historial_chat
+#         WHERE id IN (
+#             SELECT id FROM historial_chat
+#             WHERE conversation_id = ?
+#             ORDER BY timestamp ASC
+#             LIMIT MAX(0, (SELECT COUNT(*) FROM historial_chat WHERE conversation_id = ?) - ?)
+#         )
+#     """
+#     cursor.execute(query, (conversation_id, conversation_id, max_size))
+#     conn.commit()
+#     conn.close()
+#     logger.info(f"🧹 Historial recortado para la conversación {conversation_id}")
 
 
 
@@ -348,7 +411,8 @@ def trim_history_in_db(conversation_id: str, max_size: int = 10):
 
 
 
-async def execute_function_call(function_name: str, arguments: str) -> Dict[str, Any]:
+# <<< CAMBIO 1: Añadir 'db_url' a la firma de la función.
+async def execute_function_call(function_name: str, arguments: str, db_url: str) -> Dict[str, Any]:
     """
     Execute function calls from GPT
     """
@@ -357,51 +421,30 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
         logger.info(f"🔧 Executing function: {function_name} with args: {args}")
         
         if function_name == "get_risk_prediction":
-            # Trabajamos directamente con matricula_id - simple
             matricula_id = args.get("user_id") or args.get("student_id")
             if not matricula_id:
                 return {"error": "Missing user_id parameter"}
             
             logger.info(f"🔍 Processing risk prediction for matricula_id: {matricula_id}")
             
-            # Get student info  
             student_info = None
             try:
-                student_info = await get_student_info_from_matricula_id(str(matricula_id))
+                # <<< CAMBIO 2: Pasar 'db_url' a la función que busca información.
+                student_info = await get_student_info_from_matricula_id(str(matricula_id), db_url)
                 if student_info:
                     logger.info(f"✅ Found student: {student_info['nombre_completo']} - Grade: {student_info['grado']}")
             except Exception as e:
                 logger.warning(f"⚠️ Could not get student info for matricula_id {matricula_id}: {e}")
             
-            # Call ML prediction with matricula_id
             logger.info(f"🎯 Calling ML model with matricula_id: {matricula_id}")
-            prediction_result = model_manager.predict_risk(int(matricula_id))
             
-            # Convert prediction result to dict for JSON serialization
+            # <<< CAMBIO 3: Pasar 'db_url' al servicio de predicción.
+            prediction_result = model_manager.predict_risk(int(matricula_id), db_url)
+            
+            # ... (el resto de la lógica para construir la respuesta es igual)
             prediction_dict = None
             if prediction_result:
-                prediction_dict = {
-                    "student_id": prediction_result.student_id,
-                    "risk_level": prediction_result.risk_level.value,
-                    "risk_probability": prediction_result.risk_probability,
-                    "confidence": prediction_result.confidence,
-                    "key_factors": [
-                        {
-                            "factor": kf.factor,
-                            "value": kf.value,
-                            "impact": kf.impact
-                        } for kf in prediction_result.key_factors
-                    ],
-                    "recommended_actions": [
-                        {
-                            "action": ra.action,
-                            "priority": ra.priority,
-                            "description": ra.description
-                        } for ra in prediction_result.recommended_actions
-                    ],
-                    "model_used": prediction_result.model_used,
-                    "prediction_timestamp": prediction_result.prediction_timestamp
-                }
+                prediction_dict = prediction_result.model_dump() # Forma más limpia con Pydantic v2
                 
             return {
                 "function": "get_risk_prediction",
@@ -413,29 +456,28 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
         elif function_name == "search_academic_resources":
             query = args.get("query")
             context_type = args.get("context_type", "academic")
-            user_id = args.get("user_id")  # El "user_id" es realmente matricula_id
+            user_id = args.get("user_id")
             
             if not query:
                 return {"error": "Missing query parameter"}
             
-            # Get student's grade for grade-specific RAG search
             student_grade = None
             if user_id:
                 try:
-                    student_info = await get_student_info_from_matricula_id(str(user_id))
+                    # <<< CAMBIO 4: Pasar 'db_url' también aquí.
+                    student_info = await get_student_info_from_matricula_id(str(user_id), db_url)
                     if student_info:
                         student_grade = student_info.get("grado")
                         logger.info(f"📚 Student grade identified: {student_grade} for matricula_id {user_id}")
                 except Exception as e:
                     logger.warning(f"⚠️ Could not get student grade for matricula_id {user_id}: {e}")
             
-            # Call our RAG service with grade context
             rag_result = await rag_service.query_by_grade(
-                query=query, 
-                grade=student_grade,
-                context_type=context_type
-            )
-            
+            query=query, 
+            db_url=db_url, # <-- Aquí se conecta todo
+            grade=student_grade,
+            context_type=context_type
+        )
             return {
                 "function": "search_academic_resources",
                 "query": query,
@@ -454,8 +496,6 @@ async def execute_function_call(function_name: str, arguments: str) -> Dict[str,
 
 
 
-
-
 @router.post("/", response_model=ChatResponse)
 async def chat_with_mari(request: ChatRequest):
     """
@@ -469,9 +509,9 @@ async def chat_with_mari(request: ChatRequest):
         logger.info(f"💬 Chat request from user: {matricula_id}")
 
         # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
-        conversation_id = request.conversation_id or str(uuid.uuid4())
-        history_from_db = load_history_from_db(conversation_id, limit=MAX_MESSAGES)
-
+        conversation_id = request.db_url or str(uuid.uuid4())
+        history_from_db = load_history_from_db(matricula_id,conversation_id, limit=MAX_MESSAGES)
+        logger.info(f"🕰️ Loaded {request.db_url} messages from history for conversation {conversation_id}")
         # 2. CONSTRUIR EL PROMPT PARA OPENAI (VERSIÓN CORREGIDA)
         messages = [{"role": "system", "content": EDUCATIONAL_ASSISTANT_PROMPT}]
         messages.extend(history_from_db)
@@ -519,7 +559,11 @@ Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_p
             function_name, function_args = function_call.name, function_call.arguments
             
             logger.info(f"🎯 GPT requested function call: {function_name}")
-            function_result = await execute_function_call(function_name, function_args)
+            function_result = await execute_function_call(
+                function_name, 
+                function_args, 
+                request.db_url # <-- Aquí se conecta todo
+            )
             function_calls_made.append(function_name)
 
             if function_name == "get_risk_prediction":
@@ -542,7 +586,7 @@ Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_p
         # 4. GUARDAR Y RECORTAR EN LA DB
         save_message_to_db(matricula_id, conversation_id, "user", request.message)
         save_message_to_db(matricula_id, conversation_id, "assistant", final_content)
-        trim_history_in_db(conversation_id, max_size=MAX_MESSAGES)
+        trim_history_in_db(conversation_id, conversation_id,max_size=MAX_MESSAGES)
         
         logger.info(f"✅ Respuesta generada para el usuario: {matricula_id}")
         

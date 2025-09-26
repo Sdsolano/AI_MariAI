@@ -14,14 +14,18 @@ class RiskLevel(str, Enum):
     ALTO = "ALTO"
     CRITICO = "CRITICO"
 
-class PredictionRequest(BaseModel):
-    """Request model for individual prediction"""
-    student_id: int = Field(..., description="Student ID for prediction")
-    
+class PredictionBody(BaseModel):
+    """Request body model for individual prediction."""
+    database_url: str = Field(..., description="Full database connection URL for the specific tenant")
+    #model_name: Optional[str] = Field(None, description="Optional specific model to use")
+
+# <<< CAMBIO: Se actualiza 'BatchPredictionRequest' para incluir la URL de la base de datos.
 class BatchPredictionRequest(BaseModel):
     """Request model for batch predictions"""
     student_ids: List[int] = Field(..., description="List of student IDs")
-    
+    database_url: str = Field(..., description="Full database connection URL for this batch")
+    model_name: Optional[str] = Field(None, description="Optional specific model to use for the batch")
+
 class KeyFactor(BaseModel):
     """Key factor affecting risk prediction"""
     factor: str = Field(..., description="Factor name")

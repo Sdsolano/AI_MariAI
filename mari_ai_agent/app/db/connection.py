@@ -14,10 +14,63 @@ class DatabaseManager:
     """Gestor centralizado de conexiones a BD académica"""
     
     def __init__(self):
-        self.engine = None
-        self.SessionLocal = None
-        self._initialize_engine()
+        # <<< CAMBIO: Ya no inicializamos un solo engine.
+        # Ahora guardaremos un engine y un sessionmaker para cada DB que nos pidan.
+        self.engines = {}
+        self.SessionMakers = {}
     
+    # <<< CAMBIO: Este método reemplaza al _initialize_engine.
+    # Es el "cerebro" que crea y guarda (cachea) los pools de conexiones.
+    def _get_or_create_engine_for_url(self, db_url: str):
+        """
+        Crea un engine y un SessionMaker para una URL de base de datos específica
+        solo si no existen previamente.
+        """
+        # Si ya tenemos un engine para esta URL, no hacemos nada.
+        if db_url in self.engines:
+            return
+
+        # Si es la primera vez que vemos esta URL, creamos un nuevo engine y su pool.
+        logger.info(f"Creando nuevo pool de conexiones para: {db_url.split('@')[-1]}")
+        engine = create_engine(
+            db_url,
+            poolclass=QueuePool,
+            pool_size=10,       # Puedes tomar estos valores de un config
+            max_overflow=20,
+            pool_timeout=30,
+            pool_pre_ping=True,
+            echo=False          # Recomendable ponerlo en False para producción
+        )
+        
+        # Guardamos el engine y el sessionmaker en nuestros diccionarios.
+        self.engines[db_url] = engine
+        self.SessionMakers[db_url] = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    # <<< CAMBIO: Este es el nuevo método público.
+    # Ahora requiere la db_url para saber a qué base de datos conectarse.
+    @contextmanager
+    def get_session_for_url(self, db_url: str) -> Generator[Session, None, None]:
+        """Context manager para obtener una sesión de BD usando una URL dinámica."""
+        if not db_url:
+            raise ValueError("La URL de la base de datos no puede estar vacía.")
+
+        # 1. Asegurarse de que el engine para esta URL esté listo.
+        self._get_or_create_engine_for_url(db_url)
+        
+        # 2. Obtener el SessionMaker específico para esta URL.
+        SessionLocal = self.SessionMakers[db_url]
+        session = SessionLocal()
+        
+        # 3. El resto de la lógica es la misma (transacciones seguras).
+        try:
+            yield session
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Error en la sesión para {db_url.split('@')[-1]}: {e}")
+            raise
+        finally:
+            session.close()
     def _initialize_engine(self):
         """Inicializa el engine de SQLAlchemy"""
         try:

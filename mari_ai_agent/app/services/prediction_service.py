@@ -11,7 +11,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import json
-
+from sqlalchemy import text
 from app.db.connection import db_manager
 from app.api.v1.models.prediction import (
     RiskLevel, KeyFactor, RecommendedAction, 
@@ -73,7 +73,7 @@ class MLModelManager:
             logger.error(f" Error loading models: {e}")
             return False
     
-    def extract_student_features(self, student_id: int) -> Optional[pd.DataFrame]:
+    def extract_student_features(self, student_id: int,db_url: str) -> Optional[pd.DataFrame]:
         """Extract features for a specific student"""
         try:
             # SQL query to extract student academic data 
@@ -126,8 +126,7 @@ class MLModelManager:
             JOIN grade_distribution gd ON sg.matricula_id = gd.matricula_id
             """
             
-            with db_manager.get_session() as session:
-                from sqlalchemy import text
+            with db_manager.get_session_for_url(db_url) as session:
                 result = session.execute(text(query), {"student_id_1": student_id, "student_id_2": student_id})
                 rows = result.fetchall()
                 result = [dict(row._mapping) for row in rows]
@@ -200,7 +199,7 @@ class MLModelManager:
         
         return features
     
-    def predict_risk(self, student_id: int, model_name: Optional[str] = None) -> Optional[PredictionResponse]:
+    def predict_risk(self, student_id: int,db_url: str, model_name: Optional[str] = None) -> Optional[PredictionResponse]:
         """Predict risk for a specific student"""
         try:
             # Use active model if not specified
@@ -212,7 +211,7 @@ class MLModelManager:
                 return None
             
             # Extract features
-            features_df = self.extract_student_features(student_id)
+            features_df = self.extract_student_features(student_id,db_url)
             if features_df is None:
                 return None
             
