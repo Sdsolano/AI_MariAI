@@ -17,6 +17,7 @@ class RiskLevel(str, Enum):
 class PredictionBody(BaseModel):
     """Request body model for individual prediction."""
     database_url: str = Field(..., description="Full database connection URL for the specific tenant")
+    model_name: Optional[str] = None
     #model_name: Optional[str] = Field(None, description="Optional specific model to use")
 
 # <<< CAMBIO: Se actualiza 'BatchPredictionRequest' para incluir la URL de la base de datos.
@@ -91,7 +92,8 @@ class ModelEvaluationResponse(BaseModel):
     confusion_matrix: List[List[int]] = Field(..., description="Confusion matrix")
     evaluation_timestamp: str = Field(..., description="When evaluation was performed")
     total_samples: int = Field(..., description="Total samples evaluated")
-
+class SummaryResponse(BaseModel):
+    summary: str
 class ErrorResponse(BaseModel):
     """Error response model"""
     error: str = Field(..., description="Error message")

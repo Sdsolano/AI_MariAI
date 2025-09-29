@@ -8,11 +8,11 @@ from typing import List, Optional
 import time
 import logging
 from datetime import datetime
-
+from app.rag.retrievers.grade_retriever import preguntar_con_contexto_prediction
 from app.api.v1.models.prediction import (
      PredictionResponse, BatchPredictionRequest, 
     BatchPredictionResponse, ModelsStatusResponse, ModelEvaluationRequest,
-    ModelEvaluationResponse, ErrorResponse, RiskLevel,PredictionBody
+    ModelEvaluationResponse, ErrorResponse, RiskLevel,PredictionBody,SummaryResponse
 )
 from app.services.prediction_service import ml_manager
 
@@ -30,45 +30,42 @@ async def load_ml_models():
     else:
         logger.info("ML models loaded successfully")
 
-@router.post("/risk/{student_id}", response_model=PredictionResponse)
-async def predict_student_risk(
-    student_id: int,          # <<< Viene de la URL (ej: /risk/123)
-    body: PredictionBody      # <<< Viene del cuerpo (body) de la petición
+@router.post("/risk/{student_id}", response_model=SummaryResponse)
+async def predict_student_risk_and_return_summary(
+    student_id: int,
+    body: PredictionBody
 ):
     """
-    Predict academic risk for a specific student.
-    - student_id is from the URL path.
-    - database_url is from the request body.
+    Genera una predicción de riesgo y devuelve DIRECTAMENTE un resumen en texto.
     """
     try:
-        logger.info(f"🎯 Predicting risk for student {student_id}")
-
-        # La validación del student_id sigue funcionando igual
-        if student_id <= 0:
-            raise HTTPException(status_code=400, detail=f"Invalid student_id: {student_id}")
-
-        # Llamamos al servicio usando los datos de ambas fuentes
-        prediction = ml_manager.predict_risk(
-            student_id=student_id,         # <<< De la URL
-            db_url=body.database_url,      # <<< Del body
-            #model_name=body.model_name     # <<< Del body
+        # 1. Obtenemos la predicción (igual que antes)
+        prediction_object = ml_manager.predict_risk(
+            student_id=student_id,
+            db_url=body.database_url,
+            model_name=body.model_name
         )
 
-        if prediction is None:
+        if prediction_object is None:
             raise HTTPException(
                 status_code=404,
                 detail=f"Could not generate prediction for student {student_id}."
             )
 
-        logger.info(f"✅ Prediction successful: Student {student_id} -> {prediction.risk_level}")
-        return prediction
-    except HTTPException:
-        raise
+        # 2. Convertimos el objeto a diccionario
+        prediction_dict = prediction_object.model_dump()
+
+        # 3. Llamamos a la función que genera el resumen
+        summary_text = preguntar_con_contexto_prediction(prediction_dict)
+
+        # <<< CAMBIO 2: Devolvemos el texto envuelto en el nuevo modelo de respuesta
+        return SummaryResponse(summary=summary_text)
+
     except Exception as e:
-        logger.error(f"❌ Error predicting risk for student {student_id}: {e}")
+        logger.error(f"❌ Error in unified prediction/summary endpoint for student {student_id}: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Internal error predicting risk for student {student_id}: {str(e)}"
+            detail=f"Internal error processing request: {str(e)}"
         )
 @router.post("/batch", response_model=BatchPredictionResponse)
 async def predict_batch_risks(

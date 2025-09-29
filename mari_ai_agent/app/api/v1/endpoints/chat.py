@@ -178,25 +178,20 @@ PERSONALIDAD Y ESTILO:
 - Proactivo en ofrecer ayuda
 
 CAPACIDADES PRINCIPALES:
-1. **Análisis de Riesgo**: Puedes evaluar el riesgo académico de estudiantes usando datos históricos
-2. **Sistema RAG por Grado**: Puedes buscar información específica del grado académico del estudiante
-3. **Recomendaciones Personalizadas**: Basadas en el perfil de riesgo y grado del estudiante
+1. **Sistema RAG por Grado**: Puedes buscar información específica del grado académico del estudiante
+2. **Recomendaciones Personalizadas**: Basadas en el grado del estudiante
 
 PROTOCOLO DE CONVERSACIÓN:
-1. **Al inicio**: SIEMPRE obtén un análisis de riesgo del estudiante para entender su situación, ademas saluda al estudiante por su nombre
-2. **Para consultas académicas**: SIEMPRE usa el sistema RAG específico del grado del estudiante
-3. **Enfoque**: Proporciona recursos, estrategias y apoyo personalizado según el nivel de riesgo y grado
+1. **Para consultas académicas**: SIEMPRE usa el sistema RAG específico del grado del estudiante
+2. **Enfoque**: Proporciona recursos, estrategias y apoyo personalizado según el grado
 
 
 FUNCIONES DISPONIBLES:
-- `get_risk_prediction(user_id)`: Obtiene predicción de riesgo académico para un estudiante
 - `search_academic_resources(query, user_id)`: Busca información en el contenido específico del grado del estudiante
 
 INSTRUCCIONES CRÍTICAS:
 - **SIEMPRE usa NÚMEROS como user_id** - NUNCA uses nombres de estudiantes
 - **SIEMPRE incluye el user_id numérico del estudiante cuando uses search_academic_resources** - esto permite buscar en el contenido específico de su grado
-- Si el estudiante tiene ALTO riesgo: Sé más proactivo, ofrece recursos inmediatos y estrategias de recuperación
-- Si el estudiante tiene BAJO riesgo: Enfócate en mantener el rendimiento y ofrecer recursos de mejora
 - Para consultas sobre materias, conceptos, tareas: USA search_academic_resources con el user_id NUMÉRICO para obtener contenido del grado correcto
 - Personaliza tus respuestas según el contexto del estudiante y su grado académico
 - Sé específico y práctico en tus recomendaciones
@@ -208,20 +203,7 @@ Recuerda: Tu misión es ser el compañero de estudios inteligente que cada estud
 
 # Function definitions for OpenAI
 FUNCTION_DEFINITIONS = [
-    {
-        "name": "get_risk_prediction",
-        "description": "Obtiene la predicción de riesgo académico para un estudiante específico usando su user_id",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "user_id": {
-                    "type": "string",
-                    "description": "User ID del estudiante para obtener predicción de riesgo (se resuelve automáticamente al student_id)"
-                }
-            },
-            "required": ["user_id", "db_url"]
-        }
-    },
+
     {
         "name": "search_academic_resources",
         "description": "Busca información relevante en la base de conocimientos académica específica del grado del estudiante usando RAG",
@@ -246,11 +228,6 @@ FUNCTION_DEFINITIONS = [
         }
     }
 ]
-
-
-
-
-
 
 
 
@@ -326,7 +303,7 @@ def trim_history_in_db(matricula_id: int, db_url: str, max_size: int = 10):
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     
-    # <<< CAMBIO: El WHERE se actualiza en la subconsulta para usar ambos identificadores.
+    # <<< El WHERE se actualiza en la subconsulta para usar ambos identificadores.
     query = """
         DELETE FROM historial_chat
         WHERE id IN (
@@ -337,81 +314,12 @@ def trim_history_in_db(matricula_id: int, db_url: str, max_size: int = 10):
         )
     """
     
-    # <<< CAMBIO: Se pasan los parámetros correspondientes a cada '?' en la consulta.
     cursor.execute(query, (matricula_id, db_url, matricula_id, db_url, max_size))
     
     conn.commit()
     conn.close()
     logger.info(f"🧹 Historial recortado para la conversación de matricula {matricula_id}")
 
-# def save_message_to_db(matricula_id: int, conversation_id: str, role: str, content: str):
-#     """Guarda un mensaje en la base de datos SQLite."""
-#     conn = sqlite3.connect(DATABASE_FILE)
-#     cursor = conn.cursor()
-#     timestamp = datetime.now().isoformat()
-#     cursor.execute(
-#         "INSERT INTO historial_chat (idmatricula, conversation_id, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-#         (matricula_id, conversation_id, role, content, timestamp)
-#     )
-#     conn.commit()
-#     conn.close()
-
-# def load_history_from_db(conversation_id: str, limit: int = 10) -> List[Dict[str, str]]:
-#     """Carga el historial de una conversación desde SQLite."""
-#     conn = sqlite3.connect(DATABASE_FILE)
-#     conn.row_factory = sqlite3.Row
-#     cursor = conn.cursor()
-#     cursor.execute(
-#         "SELECT role, content FROM historial_chat WHERE conversation_id = ? ORDER BY timestamp DESC LIMIT ?",
-#         (conversation_id, limit)
-#     )
-#     history = [dict(row) for row in reversed(cursor.fetchall())]
-#     conn.close()
-#     return history
-
-# def trim_history_in_db(conversation_id: str, max_size: int = 10):
-#     """Borra los mensajes más antiguos de una conversación en SQLite si supera max_size."""
-#     conn = sqlite3.connect(DATABASE_FILE)
-#     cursor = conn.cursor()
-#     query = """
-#         DELETE FROM historial_chat
-#         WHERE id IN (
-#             SELECT id FROM historial_chat
-#             WHERE conversation_id = ?
-#             ORDER BY timestamp ASC
-#             LIMIT MAX(0, (SELECT COUNT(*) FROM historial_chat WHERE conversation_id = ?) - ?)
-#         )
-#     """
-#     cursor.execute(query, (conversation_id, conversation_id, max_size))
-#     conn.commit()
-#     conn.close()
-#     logger.info(f"🧹 Historial recortado para la conversación {conversation_id}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# <<< CAMBIO 1: Añadir 'db_url' a la firma de la función.
 async def execute_function_call(function_name: str, arguments: str, db_url: str) -> Dict[str, Any]:
     """
     Execute function calls from GPT
@@ -419,41 +327,8 @@ async def execute_function_call(function_name: str, arguments: str, db_url: str)
     try:
         args = json.loads(arguments)
         logger.info(f"🔧 Executing function: {function_name} with args: {args}")
-        
-        if function_name == "get_risk_prediction":
-            matricula_id = args.get("user_id") or args.get("student_id")
-            if not matricula_id:
-                return {"error": "Missing user_id parameter"}
             
-            logger.info(f"🔍 Processing risk prediction for matricula_id: {matricula_id}")
-            
-            student_info = None
-            try:
-                # <<< CAMBIO 2: Pasar 'db_url' a la función que busca información.
-                student_info = await get_student_info_from_matricula_id(str(matricula_id), db_url)
-                if student_info:
-                    logger.info(f"✅ Found student: {student_info['nombre_completo']} - Grade: {student_info['grado']}")
-            except Exception as e:
-                logger.warning(f"⚠️ Could not get student info for matricula_id {matricula_id}: {e}")
-            
-            logger.info(f"🎯 Calling ML model with matricula_id: {matricula_id}")
-            
-            # <<< CAMBIO 3: Pasar 'db_url' al servicio de predicción.
-            prediction_result = model_manager.predict_risk(int(matricula_id), db_url)
-            
-            # ... (el resto de la lógica para construir la respuesta es igual)
-            prediction_dict = None
-            if prediction_result:
-                prediction_dict = prediction_result.model_dump() # Forma más limpia con Pydantic v2
-                
-            return {
-                "function": "get_risk_prediction",
-                "user_id": matricula_id,
-                "student_info": student_info,
-                "result": prediction_dict
-            }
-            
-        elif function_name == "search_academic_resources":
+        if function_name == "search_academic_resources":
             query = args.get("query")
             context_type = args.get("context_type", "academic")
             user_id = args.get("user_id")
@@ -464,7 +339,7 @@ async def execute_function_call(function_name: str, arguments: str, db_url: str)
             student_grade = None
             if user_id:
                 try:
-                    # <<< CAMBIO 4: Pasar 'db_url' también aquí.
+                    
                     student_info = await get_student_info_from_matricula_id(str(user_id), db_url)
                     if student_info:
                         student_grade = student_info.get("grado")
@@ -516,11 +391,11 @@ async def chat_with_mari(request: ChatRequest):
         messages = [{"role": "system", "content": EDUCATIONAL_ASSISTANT_PROMPT}]
         messages.extend(history_from_db)
         
-        # --- CAMBIO 1: VOLVEMOS A AÑADIR EL ID AL MENSAJE ---
+        
         user_message_with_context = f"[STUDENT_ID: {matricula_id}] {request.message}"
         messages.append({"role": "user", "content": user_message_with_context})
         
-        # --- CAMBIO 2: VOLVEMOS A AÑADIR EL MENSAJE DE SISTEMA FORZANDO EL ID ---
+        
         system_context = f"""
 IDENTIFICADOR PERSISTENTE DEL ESTUDIANTE: {request.user_id}
 REGLA CRÍTICA: SIEMPRE usa EXACTAMENTE el número {request.user_id} como user_id en TODAS las funciones.
@@ -528,8 +403,7 @@ NO INVENTES números. USA SOLAMENTE: {request.user_id}
         """
         messages.append({"role": "system", "content": system_context})
         
-        # --- CAMBIO 3: VOLVEMOS A DETECTAR SI ES UNA CONVERSACIÓN NUEVA ---
-        # Si no hay historial en la DB, es el primer mensaje.
+    
         is_new_conversation = not history_from_db
         if is_new_conversation:
             initial_context = f"""
@@ -538,7 +412,7 @@ Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_p
             """
             messages.append({"role": "system", "content": initial_context})
 
-        # 3. LLAMAR A OPENAI Y PROCESAR RESPUESTA (tu lógica original completa)
+         
         response = client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
