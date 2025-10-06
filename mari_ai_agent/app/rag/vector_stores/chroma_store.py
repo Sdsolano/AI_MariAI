@@ -27,7 +27,9 @@ def obtener_cursos(db_url):
     cur.execute(query)
     rows = cur.fetchall()
     # Convertir a diccionario {file_path: grado}
-    result = {os.path.join(os.environ["FOLDER_PATH"],row[0]): row[1] for row in rows}
+    result = {
+    os.path.join('/home/gestionacademicasoft/apps/backend/backend.jmdatalabs.co/', row[0]): row[1]
+    for row in rows if row[0]}
     print(result)
 
 
