@@ -419,7 +419,7 @@ Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_p
             tools=[{"type": "function", "function": func} for func in FUNCTION_DEFINITIONS],
             tool_choice="auto",
             temperature=0.7,
-            max_tokens=750
+            max_tokens=350
         )
         
         assistant_message = response.choices[0].message
