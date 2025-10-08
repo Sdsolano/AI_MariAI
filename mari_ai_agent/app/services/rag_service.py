@@ -300,14 +300,13 @@ Contexto disponible:
 Pregunta del estudiante: {query}
 
 Instrucciones:
-- Combina la información de los documentos y la encontrada en la web para dar una respuesta completa
-- En tu respuesta debes mostrar enlaces relevantes como videos o documentos obtenidos de {websearch_context} 
-- En tu respuesta debes diferenciar entre lo obtenido de la base de datos y lo obtenido de la web
-- Responde de manera clara y concisa
-- Basa tu respuesta únicamente en la información del contexto
-- Si no encuentras información relevante en el contexto, menciona que no tienes esa información específica
-- Usa un tono amigable y profesional
-- Si es apropiado, menciona las fuentes de información
+- Basa tu respuesta únicamente en la información del contexto proporcionado.
+- Combina la información de los documentos y la encontrada en la web para dar una respuesta completa pero concisa.
+- Organiza la respuesta de forma clara y estética. Utiliza encabezados, negritas y listas para facilitar la lectura.
+- En tu respuesta, diferencia claramente qué información proviene de la base de datos y cuál fue obtenida de la web.
+- Muestra únicamente los enlaces (videos, documentos, etc.) que se encuentren explícitamente en la `Información adicional encontrada en la web`. No debes inventar ni generar nuevos enlaces.
+- Usa un tono amigable y profesional.
+- Si el contexto no contiene información relevante para responder la pregunta, menciónalo directamente.
 
 Respuesta:"""
 
