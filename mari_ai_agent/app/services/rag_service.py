@@ -301,7 +301,7 @@ Pregunta del estudiante: {query}
 
 Instrucciones:
 - Combina la información de los documentos y la encontrada en la web para dar una respuesta completa
-- En tu respuesta debes mostrar enlaces relevantes como videos o documentos
+- En tu respuesta debes mostrar enlaces relevantes como videos o documentos obtenidos de {websearch_context} 
 - En tu respuesta debes diferenciar entre lo obtenido de la base de datos y lo obtenido de la web
 - Responde de manera clara y concisa
 - Basa tu respuesta únicamente en la información del contexto
