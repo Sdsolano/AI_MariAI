@@ -190,7 +190,6 @@ FUNCIONES DISPONIBLES:
 - `search_academic_resources(query, user_id)`: Busca información en el contenido específico del grado del estudiante
 
 INSTRUCCIONES CRÍTICAS:
-- **SIEMPRE usa NÚMEROS como user_id** - NUNCA uses nombres de estudiantes
 - **SIEMPRE incluye el user_id numérico del estudiante cuando uses search_academic_resources** - esto permite buscar en el contenido específico de su grado
 - Para consultas sobre materias, conceptos, tareas: USA search_academic_resources con el user_id NUMÉRICO para obtener contenido del grado correcto
 - Personaliza tus respuestas según el contexto del estudiante y su grado académico
@@ -371,6 +370,8 @@ async def execute_function_call(function_name: str, arguments: str, db_url: str)
 
 
 
+
+
 @router.post("/", response_model=ChatResponse)
 async def chat_with_mari(request: ChatRequest):
     """
@@ -397,9 +398,7 @@ async def chat_with_mari(request: ChatRequest):
         
         
         system_context = f"""
-IDENTIFICADOR PERSISTENTE DEL ESTUDIANTE: {request.user_id}
-REGLA CRÍTICA: SIEMPRE usa EXACTAMENTE el número {request.user_id} como user_id en TODAS las funciones.
-NO INVENTES números. USA SOLAMENTE: {request.user_id}
+Responde con la informacion que recibes y nada mas. No inventes ni agregues informacion adicional. No muestres el student_id en la respuesta.
         """
         messages.append({"role": "system", "content": system_context})
         
@@ -408,8 +407,7 @@ NO INVENTES números. USA SOLAMENTE: {request.user_id}
         if is_new_conversation:
             initial_context = f"""
 ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
-Debes INMEDIATAMENTE obtener un análisis de riesgo académico usando get_risk_prediction con user_id "{request.user_id}".
-            """
+ """
             messages.append({"role": "system", "content": initial_context})
 
          

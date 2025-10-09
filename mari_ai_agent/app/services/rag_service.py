@@ -286,6 +286,12 @@ class RAGService:
         """Generate response using OpenAI with retrieved context"""
         try:
             # Build context from retrieved documents
+            print("retrieved_docs"*20)
+            print(retrieved_docs)
+            print("retrieved_docs"*20)
+            print('2'*50)
+            print("websearch_context", websearch_context)
+            print('2'*50)
             context = "\n\n".join([
                 f"Documento {i+1} (Fuente: {doc['metadata'].get('source', 'desconocida')}):\n{doc['content']}"
                 for i, doc in enumerate(retrieved_docs)
@@ -295,16 +301,14 @@ class RAGService:
             prompt = f"""Eres Mari AI, un asistente académico inteligente. Responde la pregunta del estudiante basándote únicamente en el contexto proporcionado.
 
 Contexto disponible:
-{context},{f'\n\nInformación adicional encontrada en la web:\n{websearch_context}' if websearch_context else ''}
+{f'\n\nInformación encontrada en la base de datos:\n{context}' if context else ''}, información encontrada en la web {websearch_context},
 
 Pregunta del estudiante: {query}
 
 Instrucciones:
-- Basa tu respuesta únicamente en la información del contexto proporcionado.
-- Combina la información de los documentos y la encontrada en la web para dar una respuesta completa pero concisa.
+- Tu función es basar tu respuesta ÚNICAMENTE en la información del contexto disponible, es decir solo vas a parafrasear sin agregar nada.
+- IMPORTANTE: agrega todos los enlaces (videos, documentos, etc.) que se encuentren en el contexto.
 - Organiza la respuesta de forma clara y estética. Utiliza encabezados, negritas y listas para facilitar la lectura.
-- En tu respuesta, diferencia claramente qué información proviene de la base de datos y cuál fue obtenida de la web.
-- Muestra únicamente los enlaces (videos, documentos, etc.) que se encuentren explícitamente en la `Información adicional encontrada en la web`. No debes inventar ni generar nuevos enlaces.
 - Usa un tono amigable y profesional.
 - Si el contexto no contiene información relevante para responder la pregunta, menciónalo directamente.
 
@@ -322,7 +326,9 @@ Respuesta:"""
             )
             
             generated_text = response.choices[0].message.content
-            
+            print("generated_text"*20)
+            print(generated_text)
+            print("generated_text"*20)  
             # Calculate confidence based on number and quality of retrieved docs
             confidence = min(0.9, 0.5 + (len(retrieved_docs) * 0.1) + 
                            (sum(doc['similarity_score'] for doc in retrieved_docs) / len(retrieved_docs) if retrieved_docs else 0) * 0.3)
@@ -514,11 +520,9 @@ Respuesta:"""
             )
             
             
-            search_prompt = f"{query}. Importante, SIEMPRE regresa en tu respuesta enlaces relevantes como videos o documentos, evita sitios como wikipedia, foros, etc. Es para un estudiante de {grade}."
+            search_prompt = f"{query}. Tu única función es regresar en tu respuesta enlaces relevantes como videos o documentos, evita sitios como wikipedia, foros, etc. Además debes dar información relevante sobre el tema solicitado. Es para un estudiante de {grade}."
             websearch_context = buscar_con_websearch(search_prompt)
-            print('2'*50)
-            print("websearch_context", websearch_context)
-            print('2'*50)
+            
             # Step 2: Generate response based on retrieved documents
             response_data = await self.generate_response(query, retrieved_docs,websearch_context)
             
