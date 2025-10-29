@@ -460,6 +460,7 @@ async def ask_doc(
 
     docs = loader.load()
     text = "\n".join([d.page_content for d in docs])
+    text= text[:1500]  # Limitar longitud para evitar exceso de tokens
     # Borrar archivo temporal
     os.remove(tmp_path)
 
