@@ -391,6 +391,44 @@ from langchain_community.document_loaders import (
     UnstructuredPowerPointLoader, TextLoader,
     UnstructuredFileLoader, CSVLoader
 )
+import sqlite3
+import logging
+
+
+
+def trim_history_in_db_double_doc(matricula_id: int, db_url: str, max_size: int = 10):
+    """
+    Borra los mensajes cuyo content empieza con 'Informacion original'
+    y recorta el historial para dejar como máximo `max_size` mensajes
+    (por idmatricula + conversation_id).
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(DATABASE_FILE)
+        cursor = conn.cursor()
+
+        # 1) Eliminar mensajes cuyo content comienza con "Informacion original"
+        delete_info_original_sql = """
+            DELETE FROM historial_chat
+            WHERE idmatricula = ?
+              AND conversation_id = ?
+              AND content LIKE 'Informacion original%';
+        """
+        cursor.execute(delete_info_original_sql, (matricula_id, db_url))
+        deleted_info_original = cursor.rowcount
+        logger.info(f"🗑️ Eliminados {deleted_info_original} mensajes 'Informacion original' para matricula={matricula_id} conversation_id={db_url}")
+
+        
+        conn.commit()
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        logger.exception("❌ Error ejecutando trim_history_in_db_double_doc: %s", e)
+        raise
+    finally:
+        if conn:
+            conn.close()
 
 
 @router.post("/ask_doc")
@@ -404,12 +442,13 @@ async def ask_doc(
         tmp.write(await file.read())
         tmp_path = tmp.name
     matricula_id = int(user_id)
-    MAX_MESSAGES = 20
+    MAX_MESSAGES = 5
     
     logger.info(f"💬 Chat request from user: {matricula_id}")
     
     # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
     conversation_id = db_url or str(uuid.uuid4())
+    trim_history_in_db_double_doc(matricula_id, conversation_id,max_size=MAX_MESSAGES)
     # Detectar el tipo de archivo y extraer texto con LangChain
     if file.filename.endswith(".pdf"):
         loader = PyMuPDFLoader(tmp_path)
@@ -421,7 +460,6 @@ async def ask_doc(
 
     docs = loader.load()
     text = "\n".join([d.page_content for d in docs])
-    print(text)
     # Borrar archivo temporal
     os.remove(tmp_path)
 
@@ -438,7 +476,7 @@ async def ask_doc(
     )
     save_message_to_db(matricula_id, conversation_id, "user", question)
     save_message_to_db(matricula_id, conversation_id, "assistant", f"Informacion original:{text}, Respuesta generada: {response.choices[0].message.content}")
-    trim_history_in_db(conversation_id, conversation_id,max_size=MAX_MESSAGES)
+    trim_history_in_db(matricula_id, conversation_id,max_size=MAX_MESSAGES)
     
     return {"answer": response.choices[0].message.content}
 
@@ -476,7 +514,7 @@ async def chat_with_mari(request: ChatRequest):
     """
     try:
         matricula_id = int(request.user_id)
-        MAX_MESSAGES = 20
+        MAX_MESSAGES = 5
         
         logger.info(f"💬 Chat request from user: {matricula_id}")
         print(request.db_url)
@@ -554,7 +592,7 @@ ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
         # 4. GUARDAR Y RECORTAR EN LA DB
         save_message_to_db(matricula_id, conversation_id, "user", request.message)
         save_message_to_db(matricula_id, conversation_id, "assistant", final_content)
-        trim_history_in_db(conversation_id, conversation_id,max_size=MAX_MESSAGES)
+        trim_history_in_db(matricula_id, conversation_id,max_size=MAX_MESSAGES)
         
         logger.info(f"✅ Respuesta generada para el usuario: {matricula_id}")
         
