@@ -426,7 +426,7 @@ async def ask_doc(
     os.remove(tmp_path)
 
     # Limitar longitud para evitar exceso de tokens
-    text = text[:15000]
+    #text = text[:15000]
 
     # Llamada a OpenAI
     response = client.chat.completions.create(
