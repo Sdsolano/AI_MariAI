@@ -372,6 +372,102 @@ async def execute_function_call(function_name: str, arguments: str, db_url: str)
 
 
 
+
+
+
+
+
+
+
+
+from fastapi import FastAPI, File, UploadFile, Form
+from openai import OpenAI
+#from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
+import tempfile
+import os
+
+from langchain_community.document_loaders import (
+    PyMuPDFLoader, UnstructuredWordDocumentLoader,
+    UnstructuredPowerPointLoader, TextLoader,
+    UnstructuredFileLoader, CSVLoader
+)
+
+
+@router.post("/ask_doc")
+async def ask_doc(
+    file: UploadFile = File(...),
+    question: str = Form(...),
+    user_id:str = Form(...),
+    db_url:str = Form(None)):
+    # Crear archivo temporal
+    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+    matricula_id = int(user_id)
+    MAX_MESSAGES = 20
+    
+    logger.info(f"💬 Chat request from user: {matricula_id}")
+    
+    # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
+    conversation_id = db_url or str(uuid.uuid4())
+    # Detectar el tipo de archivo y extraer texto con LangChain
+    if file.filename.endswith(".pdf"):
+        loader = PyMuPDFLoader(tmp_path)
+    elif file.filename.endswith(".docx"):
+        loader = UnstructuredWordDocumentLoader(tmp_path)
+    else:
+        os.remove(tmp_path)
+        return {"error": "Solo se permiten archivos PDF o DOCX."}
+
+    docs = loader.load()
+    text = "\n".join([d.page_content for d in docs])
+    print(text)
+    # Borrar archivo temporal
+    os.remove(tmp_path)
+
+    # Limitar longitud para evitar exceso de tokens
+    text = text[:15000]
+
+    # Llamada a OpenAI
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Eres un asistente que responde basándose en el documento dado."},
+            {"role": "user", "content": f"Documento:\n{text}\n\nPregunta: {question}"}
+        ]
+    )
+    save_message_to_db(matricula_id, conversation_id, "user", question)
+    save_message_to_db(matricula_id, conversation_id, "assistant", f"Informacion original:{text}, Respuesta generada: {response.choices[0].message.content}")
+    trim_history_in_db(conversation_id, conversation_id,max_size=MAX_MESSAGES)
+    
+    return {"answer": response.choices[0].message.content}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @router.post("/", response_model=ChatResponse)
 async def chat_with_mari(request: ChatRequest):
     """
@@ -380,10 +476,10 @@ async def chat_with_mari(request: ChatRequest):
     """
     try:
         matricula_id = int(request.user_id)
-        MAX_MESSAGES = 10
+        MAX_MESSAGES = 20
         
         logger.info(f"💬 Chat request from user: {matricula_id}")
-
+        print(request.db_url)
         # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
         conversation_id = request.db_url or str(uuid.uuid4())
         history_from_db = load_history_from_db(matricula_id,conversation_id, limit=MAX_MESSAGES)
