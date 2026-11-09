@@ -298,10 +298,15 @@ class RAGService:
             ])
             
             # Create prompt with context
+            db_context_block = (
+                f"\n\nInformación encontrada en la base de datos:\n{context}"
+                if context
+                else ""
+            )
             prompt = f"""Eres Mari AI, un asistente académico inteligente. Responde la pregunta del estudiante basándote únicamente en el contexto proporcionado.
 
 Contexto disponible:
-{f'\n\nInformación encontrada en la base de datos:\n{context}' if context else ''}, información encontrada en la web {websearch_context},
+{db_context_block}, información encontrada en la web {websearch_context},
 
 Pregunta del estudiante: {query}
 

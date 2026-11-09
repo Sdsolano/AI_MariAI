@@ -547,7 +547,7 @@ ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
 
          
         response = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o-mini",
             messages=messages,
             tools=[{"type": "function", "function": func} for func in FUNCTION_DEFINITIONS],
             tool_choice="auto",
@@ -584,7 +584,7 @@ ACCIÓN INICIAL: Este es el inicio de una nueva conversación.
             })
 
             final_response = client.chat.completions.create(
-                model="gpt-4-1106-preview", messages=messages, temperature=0.7, max_tokens=1500
+                model="gpt-4o-mini", messages=messages, temperature=0.7, max_tokens=1500
             )
             final_content = final_response.choices[0].message.content
         else:
@@ -669,7 +669,7 @@ async def get_chat_config():
     Get current chat system configuration
     """
     return {
-        "model": "gpt-4-1106-preview",
+        "model": "gpt-4o-mini",
         "max_tokens": 1500,
         "temperature": 0.7,
         "functions_available": [f["name"] for f in FUNCTION_DEFINITIONS],
