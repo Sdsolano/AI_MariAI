@@ -16,6 +16,7 @@ import sqlite3
 # Import our internal services
 from app.services.prediction_service import ml_manager
 from app.services.rag_service import RAGService
+from app.services.document_extract_service import extract_text_from_upload
 from app.db.connection import db_manager
 from sqlalchemy import text
 
@@ -435,51 +436,57 @@ def trim_history_in_db_double_doc(matricula_id: int, db_url: str, max_size: int 
 async def ask_doc(
     file: UploadFile = File(...),
     question: str = Form(...),
-    user_id:str = Form(...),
-    db_url:str = Form(None)):
-    # Crear archivo temporal
-    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
-        tmp.write(await file.read())
-        tmp_path = tmp.name
+    user_id: str = Form(...),
+    db_url: str = Form(None),
+):
     matricula_id = int(user_id)
     MAX_MESSAGES = 5
-    
-    logger.info(f"💬 Chat request from user: {matricula_id}")
-    
-    # 1. GESTIONAR ID DE CONVERSACIÓN Y CARGAR HISTORIAL
+
+    logger.info("💬 ask_doc user=%s file=%s", matricula_id, file.filename)
+
     conversation_id = db_url or str(uuid.uuid4())
-    trim_history_in_db_double_doc(matricula_id, conversation_id,max_size=MAX_MESSAGES)
-    # Detectar el tipo de archivo y extraer texto con LangChain
-    if file.filename.endswith(".pdf"):
-        loader = PyMuPDFLoader(tmp_path)
-    elif file.filename.endswith(".docx"):
-        loader = UnstructuredWordDocumentLoader(tmp_path)
-    else:
-        os.remove(tmp_path)
-        return {"error": "Solo se permiten archivos PDF o DOCX."}
+    trim_history_in_db_double_doc(matricula_id, conversation_id, max_size=MAX_MESSAGES)
 
-    docs = loader.load()
-    text = "\n".join([d.page_content for d in docs])
-    text= text[:1500]  # Limitar longitud para evitar exceso de tokens
-    # Borrar archivo temporal
-    os.remove(tmp_path)
+    try:
+        file_bytes = await file.read()
+        text, _doc_name = await extract_text_from_upload(
+            file_bytes, file.filename or "documento"
+        )
+    except ValueError as e:
+        return {"error": str(e)}
+    except Exception as e:
+        logger.error("ask_doc extract error: %s", e, exc_info=True)
+        return {
+            "error": "No pude leer el documento. Usa PDF, DOC, DOCX, TXT o PPTX."
+        }
 
-    # Limitar longitud para evitar exceso de tokens
-    #text = text[:15000]
+    if not text.strip():
+        return {"error": "El documento no tiene texto legible."}
 
-    # Llamada a OpenAI
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Eres un asistente que responde basándose en el documento dado."},
-            {"role": "user", "content": f"Documento:\n{text}\n\nPregunta: {question}"}
-        ]
+            {
+                "role": "system",
+                "content": "Eres un asistente que responde basándose en el documento dado.",
+            },
+            {
+                "role": "user",
+                "content": f"Documento:\n{text}\n\nPregunta: {question}",
+            },
+        ],
     )
+    answer = response.choices[0].message.content
     save_message_to_db(matricula_id, conversation_id, "user", question)
-    save_message_to_db(matricula_id, conversation_id, "assistant", f"Informacion original:{text}, Respuesta generada: {response.choices[0].message.content}")
-    trim_history_in_db(matricula_id, conversation_id,max_size=MAX_MESSAGES)
-    
-    return {"answer": response.choices[0].message.content}
+    save_message_to_db(
+        matricula_id,
+        conversation_id,
+        "assistant",
+        f"Informacion original:{text}, Respuesta generada: {answer}",
+    )
+    trim_history_in_db(matricula_id, conversation_id, max_size=MAX_MESSAGES)
+
+    return {"answer": answer}
 
 
 

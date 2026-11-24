@@ -1,0 +1,1627 @@
+{
+  "iddocente": 3,
+  "total": 55,
+  "tallies": {
+    "mao": {
+      "bien": 18,
+      "parcial": 6,
+      "mal": 31,
+      "error": 0
+    },
+    "multi": {
+      "bien": 14,
+      "parcial": 10,
+      "mal": 31,
+      "error": 0
+    }
+  },
+  "results": [
+    {
+      "id": "classic-peor-mat-p2",
+      "tag": "clasica",
+      "question": "cuál fue el peor estudiante del segundo periodo en matemáticas",
+      "expect": {
+        "kind": "number",
+        "value": 2.5,
+        "name": "SAMUEL ANDRES ROJAS    OSPINO"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 2.5 + nombre",
+        "answer": "El peor estudiante en **Matemáticas** en **Periodo 2** fue **SAMUEL ANDRES ROJAS    OSPINO**, con promedio **2.5** (7 notas).",
+        "ms": 4425,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 2.5 + nombre",
+        "answer": "El peor estudiante del segundo periodo en matemáticas fue SAMUEL ANDRES ROJAS OSPINO, con un promedio de 2.5.",
+        "ms": 17890,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 2
+      }
+    },
+    {
+      "id": "classic-mejor-mat-p2",
+      "tag": "clasica",
+      "question": "quién fue el mejor estudiante de Matemáticas en el periodo 2",
+      "expect": {
+        "kind": "number",
+        "value": 4.73,
+        "name": "ISRAEL BEKHOR         MATOS   LINARES"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.73 + nombre",
+        "answer": "El mejor estudiante en **Matemáticas** en **Periodo 2** fue **ISRAEL BEKHOR         MATOS   LINARES**, con promedio **4.73** (7 notas).",
+        "ms": 69,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 4.73 + nombre",
+        "answer": "El mejor estudiante de Matemáticas en el periodo 2 fue Israel Bekhor Matos Linares con un promedio de 4.73.",
+        "ms": 10357,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "classic-mejor-p1",
+      "tag": "clasica",
+      "question": "mejor estudiante del periodo 1",
+      "expect": {
+        "kind": "number",
+        "value": 4.47,
+        "name": "LUCIANA MISHEELL HERAZO   GUZMAN"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.47 + nombre",
+        "answer": "Mejores estudiantes — Periodo 1 (global de tus cursos)\n\n1. LUCIANA MISHEELL HERAZO   GUZMAN — promedio **4.47** (19 notas)\n2. ANNY SOFIA MORILLO    FERNANDEZ — promedio **4.4** (20 notas)\n3. SALMA SOPHIA MOYANO    SAEZ — promedio **4.36** (20 notas)\n4. GERIZIM MUÑOZ   TORRES — promedio **4.29** (20 notas)\n5. SANTIAGO DIAZ  ACOSTA — promedio **4.25** (20 notas)",
+        "ms": 91,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 4.47 + nombre",
+        "answer": "El mejor estudiante del periodo 1 es Luciana Misheell Herazo Guzmán con un promedio de 4.47.",
+        "ms": 9725,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "classic-peor-p2-global",
+      "tag": "clasica",
+      "question": "peor estudiante del segundo periodo",
+      "expect": {
+        "kind": "number",
+        "value": 3.28,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 3.28 + nombre",
+        "answer": "Peores estudiantes — Periodo 2 (global de tus cursos)\n\n1. SALOME SOFIA DAZA    SERRANO — promedio **3.28** (29 notas)\n2. DAINER JOSE PINTO   PEREZ — promedio **3.46** (21 notas)\n3. ANUAR DAVID CASTELLAR    ZAPATEIRO — promedio **3.51** (28 notas)\n4. SAMUEL ANDRES ROJAS    OSPINO — promedio **3.57** (27 notas)\n5. LISLEY KAROLINA ESCORCIA     CARREÑO — promedio **3.64** (29 notas)",
+        "ms": 80,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 3.28 + nombre",
+        "answer": "El peor estudiante del segundo periodo es SALOME SOFIA DAZA SERRANO con un promedio de 3.28.",
+        "ms": 9651,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "classic-global",
+      "tag": "clasica",
+      "question": "promedio global de todas mis notas",
+      "expect": {
+        "kind": "number",
+        "value": 3.99
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 3.99",
+        "answer": "Tu promedio global es **3.99** (1989 notas, 410 estudiantes con nota).",
+        "ms": 67,
+        "tools": [
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 3.99",
+        "answer": "El promedio global de todas tus notas es 3.99.",
+        "ms": 7661,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "classic-atencion",
+      "tag": "clasica",
+      "question": "qué estudiantes necesitan atención bajo 3.0",
+      "expect": {
+        "kind": "text_has",
+        "needles": [
+          "3"
+        ]
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "todas las claves",
+        "answer": "No hay estudiantes en 5°A que necesiten atención bajo 3.0.",
+        "ms": 2034,
+        "tools": [
+          "get_students_needing_attention"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "todas las claves",
+        "answer": "Los estudiantes que necesitan atención bajo 3.0 son: MATHIAS LIÑAN BALBUENA (1.16), ALISSON YINETH CANTILLO RAMOS (1.44), DILAN DAVID ESPITIA SAEZ (1.69), MARIANA VALENTINA ZAMBRANO MOLINA (1.75), GLEIDYS BRITANY MENDOZA OSPINO (1.75), ANUAR DAVID CASTELLAR ZAPATEIRO (1.86), ABIGAIL MEJIA RUIZ (1.93), LISLEY KAROLINA ESCORCIA CARREÑO (1.96).",
+        "ms": 10510,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "classic-mejor-cada",
+      "tag": "clasica",
+      "question": "mejor estudiante de cada asignatura",
+      "expect": {
+        "kind": "contains_any",
+        "names": [
+          "Educación Física",
+          "Geometría",
+          "Matematicas",
+          "Religión"
+        ]
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "4/4 nombres",
+        "answer": "Mejor estudiante de cada asignatura/grupo (según promedio):\n\n- **Educación Física** (5° 5°A): LUCIANA MISHEELL HERAZO   GUZMAN — promedio **4.65** (21 notas)\n- **Geometría** (5° 5°A): LUCIANA MISHEELL HERAZO   GUZMAN — promedio **4.34** (14 notas)\n- **Matematicas** (5° 5°A): ISRAEL BEKHOR         MATOS   LINARES — promedio **4.48** (15 notas)\n- **Religión** (5° 5°A): LUCIANA MISHEELL HERAZO   GUZMAN — promedio **4.64** (7 notas)\n- **Ética & Valores** (5° 5°A): MATIAS DAVID           PERALTA SIBAJA — promedio **4.75** (8 notas)",
+        "ms": 96,
+        "tools": [
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "3/4 nombres",
+        "answer": "### Mejores Estudiantes por Asignatura\n- **Ética & Valores**: SALMA SOPHIA MOYANO SAEZ, ABIGAIL MEJIA RUIZ, ANNY SOFIA MORILLO FERNANDEZ (promedio 5.0)\n- **Educación Física**: MAICOLL JOSE AHUMADA JIMENEZ (promedio 4.68)\n- **Matemáticas**: LUCIANA MISHEELL HERAZO GUZMAN (promedio 4.63)\n- **Religión**: LUCIANA MISHEELL HERAZO GUZMAN (promedio 4.5)",
+        "ms": 33689,
+        "satisfactory": true,
+        "score": 0.9,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "classic-asignaturas",
+      "tag": "clasica",
+      "question": "qué asignaturas dicto",
+      "expect": {
+        "kind": "contains_any",
+        "names": [
+          "Educación Física",
+          "Geometría",
+          "Matematicas",
+          "Religión",
+          "Ética & Valores"
+        ]
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "5/5 nombres",
+        "answer": "Dictas **5** asignaturas/grupos. Detalle:\n\n**5° / 5°A**\n- Educación Física\n- Geometría\n- Matematicas\n- Religión\n- Ética & Valores",
+        "ms": 66,
+        "tools": []
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "5/5 nombres",
+        "answer": "Las asignaturas que dicto son: Educación Física, Ética & Valores, Religión, Geometría y Matemáticas. La asignatura con el promedio más alto es Educación Física (4.25) y la de menor promedio es Matemáticas (3.58).",
+        "ms": 13321,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 2
+      }
+    },
+    {
+      "id": "act-max-0",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 61,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporciona la mejor nota de la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» en el Periodo 1.",
+        "ms": 29088,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-1",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «EVALUACION FINAL» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 66,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporciona la mejor nota de la actividad 'EVALUACION FINAL' en Educación Física del Periodo 1.",
+        "ms": 29839,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-2",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «CALENTAMIENTO ( RECORRIDO POR LA CANCHA)» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "LUCIANA MISHEELL HERAZO   GUZMAN"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / LUCIANA MISHEELL HERAZO   GUZMAN",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 76,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / LUCIANA MISHEELL HERAZO   GUZMAN",
+        "answer": "No se proporcionaron resultados de la actividad solicitada.",
+        "ms": 34998,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-3",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «Ejercicios de coordinación y equilibrio» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "DIANA SOFIA BLANCO    HERRERA"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / DIANA SOFIA BLANCO    HERRERA",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 73,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / DIANA SOFIA BLANCO    HERRERA",
+        "answer": "No se obtuvo información sobre la mejor nota de la actividad «Ejercicios de coordinación y equilibrio» en el Periodo 2, ya que el resultado es nulo.",
+        "ms": 28562,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-4",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «Fundamentos técnicos del fútbol» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 70,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporciona la mejor nota de la actividad «Fundamentos técnicos del fútbol» en el Periodo 2, ya que el resultado es nulo.",
+        "ms": 31860,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-5",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «Calentamiento y su importancia» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ANGEL  DAVID DIAZ   GUZMAN"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 67,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "No se proporciona la mejor nota de la actividad «Calentamiento y su importancia» en el Periodo 2.",
+        "ms": 30753,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-6",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «Prueba final» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 67,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se puede determinar la mejor nota de la actividad «Prueba final» de Educación Física en el Periodo 2, ya que no hay datos disponibles.",
+        "ms": 28967,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-7",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «evaluacion 2» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 4.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 63,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporcionaron resultados de la actividad 'evaluacion 2' en Educación Física para el Periodo 3.",
+        "ms": 28647,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-8",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «Evaluación 4» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 55,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporcionó la mejor nota de la actividad 'Evaluación 4' en Educación Física para el Periodo 3.",
+        "ms": 31932,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-9",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «evaluacion 3» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 66,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporcionó la mejor nota de la actividad 'evaluacion 3' en Educación Física del Periodo 3.",
+        "ms": 30839,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-10",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «evaluacion 1» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ANGEL  DAVID DIAZ   GUZMAN"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 70,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "No hay resultados para la actividad 'evaluacion 1' en el 'Periodo 3'.",
+        "ms": 30501,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-max-11",
+      "tag": "actividad_max",
+      "question": "¿Cuál fue la mejor nota de la actividad «actividad 2» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ISRAEL BEKHOR         MATOS   LINARES"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ISRAEL BEKHOR         MATOS   LINARES",
+        "answer": "No encontré resultados para: Mejores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 66,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 5.0 / ISRAEL BEKHOR         MATOS   LINARES",
+        "answer": "No se proporcionaron resultados específicos de la actividad 'actividad 2' en Educación Física para el Periodo 3.",
+        "ms": 28465,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-0",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 3.5,
+        "name": "ISABELLA                        PALOMINO GIL"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / ISABELLA                        PALOMINO GIL",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 70,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / ISABELLA                        PALOMINO GIL",
+        "answer": "No se proporcionaron resultados específicos sobre la actividad 'CALENTAMIENTO (RECORRIDO POR LA CANCHA)' en Educación Física para el Periodo 1.",
+        "ms": 37894,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-1",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «EVALUACION FINAL» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 3.0,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.0 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 68,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.0 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No hay datos concretos sobre la peor nota de la actividad 'EVALUACION FINAL' en Educación Física para el Periodo 1.",
+        "ms": 35543,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-2",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «CALENTAMIENTO ( RECORRIDO POR LA CANCHA)» de Educación Física en Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 4.0,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 1 · Educación Artística.",
+        "ms": 69,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No se proporcionaron resultados de la actividad 'CALENTAMIENTO ( RECORRIDO POR LA CANCHA)' en Educación Física para el Periodo 1.",
+        "ms": 33514,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-3",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «Ejercicios de coordinación y equilibrio» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 3.5,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 67,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No se obtuvo evidencia de las notas de la actividad solicitada, ya que el conteo de resultados es 0.",
+        "ms": 33798,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-4",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «Fundamentos técnicos del fútbol» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 4.0,
+        "name": "NAHOMY SHANEL FONSECA    PACHECO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / NAHOMY SHANEL FONSECA    PACHECO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 69,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / NAHOMY SHANEL FONSECA    PACHECO",
+        "answer": "No se pudo determinar la peor nota de la actividad «Fundamentos técnicos del fútbol» debido a errores en la consulta SQL y falta de datos.",
+        "ms": 40010,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-5",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «Calentamiento y su importancia» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 3.5,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 68,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No hay datos disponibles sobre la actividad 'Calentamiento y su importancia' en Educación Física para el Periodo 2.",
+        "ms": 35036,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-6",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «Prueba final» de Educación Física en Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 4.5,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 2 · Educación Artística.",
+        "ms": 69,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.5 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No se encontraron datos disponibles para la actividad 'Prueba final' en Educación Física del Periodo 2.",
+        "ms": 33772,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-min-7",
+      "tag": "actividad_min",
+      "question": "¿Cuál fue la peor nota de la actividad «evaluacion 2» de Educación Física en Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 4.0,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré resultados para: Peores estudiantes — Periodo 3 · Educación Artística.",
+        "ms": 60,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.0 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No se proporcionaron resultados de la actividad 'evaluacion 2' en Educación Física para el Periodo 3.",
+        "ms": 35108,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-avg-0",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» (Educación Física, Periodo 1)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.09
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.09",
+        "answer": "El promedio de la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» en Educación Física durante el Periodo 1 es el siguiente:\n\n- **MAICOLL JOSE AHUMADA JIMENEZ**: 3.96 (20 notas)\n- **CELESTE BERTEL MARQUEZ**: 3.86 (20 notas)\n- **DIANA SOFIA BLANCO HERRERA**: 4.20 (20 notas)\n- **ALISSON YINETH CANTILLO RAMOS**: 3.85 (20 notas)\n- **JORGE EDUARDO CARRION GARCIA**: 3.98 (20 notas)\n- **ANUAR DAVID CASTELLAR ZAPATEIRO**: 3.85 (20 notas)\n- **SALOME SOFIA DAZA SERRANO**: 3.57 (20 notas)\n- **SANTIAGO DIAZ ACOSTA**: 4.25 (20 notas)\n- **ANGEL DAVID DIAZ GUZMAN**: 3.98 (20 notas)\n- **LETICIA ISABEL ECHENIQUE CORREA**: 4.17 (20 notas)\n- **LISLEY KAROLINA ESCORCIA CARREÑO**: 3.94 (20 notas)\n- **DILAN DAVID ESPITIA SAEZ**: 3.96 (20 notas)\n- **NAHOMY SHANEL FONSECA PACHECO**: 3.82 (20 notas)\n- **JHOAN ANDRES GOMEZ SARMIENTO**: 4.18 (20 notas)\n- **LUCIANA MISHEELL HERAZO GUZMAN**: 4.47 (19 notas)\n- **MATHIAS LIÑAN BALBUENA**: 4.03 (20 notas)\n- **ISRAEL BEKHOR MATOS LINARES**: 4.08 (20 notas)\n- **ABIGAIL MEJIA RUIZ**: 4.25 (20 notas)\n- **GLEIDYS BRITANY MENDOZA OSPINO**: 4.02 (20 notas)\n- **ANNY SOFIA MORILLO FERNANDEZ**: 4.40 (20 notas)\n- **SALMA SOPHIA MOYANO SAEZ**: 4.36 (20 notas)\n- **GERIZIM MUÑOZ TORRES**: 4.29 (20 notas)\n- **ALEXA MARIA OSPINO MORALES**: 4.03 (20 notas)\n- **ISABELLA PALOMINO GIL**: 4.10 (20 notas)\n- **MATIAS DAVID PERALTA SIBAJA**: 4.21 (20 notas)\n- **NOEL ENRIQUE PEREZ BALLESTEROS**: 4.09 (20 notas)\n- **DAINER JOSE PINTO PEREZ**: 3.79 (20 notas)\n- **JOSWIL DE JESUS PINZON PERTUZ**: 3.81 (20 notas)\n- **SAMUEL ANDRES ROJAS OSPINO**: 3.86 (20 notas)\n- **SANTIAGO JARED SALCEDO SEVERICHE**: 4.01 (20 notas)\n- **SOFY JULIETH VERGARA HERNANDEZ**: 3.87 (20 notas)\n- **MARIANA VALENTINA ZAMBRANO MOLINA**: 4.16 (20 notas)\n\nEn total, hay 32 estudiantes que participaron en esta actividad.",
+        "ms": 17776,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.09",
+        "answer": "No se proporcionó un promedio específico para la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)».",
+        "ms": 30404,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-avg-1",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «EVALUACION FINAL» (Educación Física, Periodo 1)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.84
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.84",
+        "answer": "El promedio de los estudiantes en la actividad «EVALUACION FINAL» de Educación Física para el Periodo 1 es el siguiente:\n\n- **MAICOLL JOSE AHUMADA JIMENEZ**: 3.96\n- **CELESTE BERTEL MARQUEZ**: 3.86\n- **DIANA SOFIA BLANCO HERRERA**: 4.20\n- **ALISSON YINETH CANTILLO RAMOS**: 3.85\n- **JORGE EDUARDO CARRION GARCIA**: 3.98\n- **ANUAR DAVID CASTELLAR ZAPATEIRO**: 3.85\n- **SALOME SOFIA DAZA SERRANO**: 3.57\n- **SANTIAGO DIAZ ACOSTA**: 4.25\n- **ANGEL DAVID DIAZ GUZMAN**: 3.98\n- **LETICIA ISABEL ECHENIQUE CORREA**: 4.17\n- **LISLEY KAROLINA ESCORCIA CARREÑO**: 3.94\n- **DILAN DAVID ESPITIA SAEZ**: 3.96\n- **NAHOMY SHANEL FONSECA PACHECO**: 3.82\n- **JHOAN ANDRES GOMEZ SARMIENTO**: 4.18\n- **LUCIANA MISHEELL HERAZO GUZMAN**: 4.47\n- **MATHIAS LIÑAN BALBUENA**: 4.03\n- **ISRAEL BEKHOR MATOS LINARES**: 4.08\n- **ABIGAIL MEJIA RUIZ**: 4.25\n- **GLEIDYS BRITANY MENDOZA OSPINO**: 4.02\n- **ANNY SOFIA MORILLO FERNANDEZ**: 4.40\n- **SALMA SOPHIA MOYANO SAEZ**: 4.36\n- **GERIZIM MUÑOZ TORRES**: 4.29\n- **ALEXA MARIA OSPINO MORALES**: 4.03\n- **ISABELLA PALOMINO GIL**: 4.10\n- **MATIAS DAVID PERALTA SIBAJA**: 4.21\n- **NOEL ENRIQUE PEREZ BALLESTEROS**: 4.09\n- **DAINER JOSE PINTO PEREZ**: 3.79\n- **JOSWIL DE JESUS PINZON PERTUZ**: 3.81\n- **SAMUEL ANDRES ROJAS OSPINO**: 3.86\n- **SANTIAGO JARED SALCEDO SEVERICHE**: 4.01\n- **SOFY JULIETH VERGARA HERNANDEZ**: 3.87\n- **MARIANA VALENTINA ZAMBRANO MOLINA**: 4.16\n\nEn total, hay 32 estudiantes que participaron en esta actividad.",
+        "ms": 14605,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.84",
+        "answer": "No se encontró el promedio del grupo en la actividad «EVALUACION FINAL» para Educación Física en el Periodo 1.",
+        "ms": 32239,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-avg-2",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «CALENTAMIENTO ( RECORRIDO POR LA CANCHA)» (Educación Física, Periodo 1)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.44
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.44",
+        "answer": "El promedio del grupo en la actividad «CALENTAMIENTO (RECORRIDO POR LA CANCHA)» (Educación Física, Periodo 1) es de **4.44**.",
+        "ms": 7684,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.44",
+        "answer": "No se proporciona un promedio válido para la actividad «CALENTAMIENTO ( RECORRIDO POR LA CANCHA)» en el Periodo 1.",
+        "ms": 30342,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-avg-3",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «Ejercicios de coordinación y equilibrio» (Educación Física, Periodo 2)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.38
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.38",
+        "answer": "En tus datos no aparece el promedio del grupo para la actividad «Ejercicios de coordinación y equilibrio» en Educación Física, periodo 2.",
+        "ms": 7361,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.38",
+        "answer": "El promedio del grupo en la actividad «Ejercicios de coordinación y equilibrio» es 4.31.",
+        "ms": 22970,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 4
+      }
+    },
+    {
+      "id": "act-avg-4",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «Fundamentos técnicos del fútbol» (Educación Física, Periodo 2)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.59
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.59",
+        "answer": "No tengo información específica sobre el promedio del grupo en la actividad «Fundamentos técnicos del fútbol» para el segundo periodo. Sin embargo, aquí están los promedios de los estudiantes en otras actividades del segundo periodo:\n\n1. **Israel Bekhor Matos Linares**: 4.62 (29 notas)\n2. **Matías David Peralta Sibaja**: 4.56 (29 notas)\n3. **Luciana Misheell Herazo Guzmán**: 4.55 (29 notas)\n4. **Jhoan Andrés Gómez Sarmiento**: 4.54 (28 notas)\n5. **Mariana Valentina Zambrano Molina**: 4.54 (29 notas)\n6. **Ángel David Díaz Guzmán**: 4.43 (28 notas)\n7. **Noel Enrique Pérez Ballesteros**: 4.31 (28 notas)\n8. **Santiago Díaz Acosta**: 4.27 (29 notas)\n9. **Celeste Bertel Márquez**: 4.19 (15 notas)\n10. **Diana Sofía Blanco Herrera**: 4.17 (29 notas)\n\nSi necesitas información adicional o específica, házmelo saber.",
+        "ms": 9068,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.59",
+        "answer": "No se puede determinar el promedio del grupo en la actividad «Fundamentos técnicos del fútbol» del Periodo 2, ya que no se presenta el nombre del grupo ni el promedio específico.",
+        "ms": 30037,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "act-avg-5",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «Calentamiento y su importancia» (Educación Física, Periodo 2)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.2
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.2",
+        "answer": "No aparece información sobre el promedio del grupo en la actividad «Calentamiento y su importancia» (Educación Física, Periodo 2).",
+        "ms": 8746,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 4.2",
+        "answer": "El promedio del grupo en la actividad «Calentamiento y su importancia» es de 4.17.",
+        "ms": 18038,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 3
+      }
+    },
+    {
+      "id": "act-avg-6",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «Prueba final» (Educación Física, Periodo 2)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.98
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.98",
+        "answer": "En la actividad «Prueba final» de Educación Física (Periodo 2), los promedios de los estudiantes son los siguientes:\n\n1. JHOAN ANDRES GOMEZ SARMIENTO: 5.00 (4 notas)\n2. LUCIANA MISHEELL HERAZO GUZMAN: 4.94 (5 notas)\n3. MARIANA VALENTINA ZAMBRANO MOLINA: 4.88 (5 notas)\n4. ISRAEL BEKHOR MATOS LINARES: 4.56 (5 notas)\n5. ANGEL DAVID DIAZ GUZMAN: 4.30 (4 notas)\n6. MATIAS DAVID PERALTA SIBAJA: 4.22 (5 notas)\n7. NOEL ENRIQUE PEREZ BALLESTEROS: 4.10 (4 notas)\n8. JORGE EDUARDO CARRION GARCIA: 4.06 (5 notas)\n9. JOSWIL DE JESUS PINZON PERTUZ: 4.04 (5 notas)\n10. SANTIAGO DIAZ ACOSTA: 4.00 (5 notas)\n11. SANTIAGO JARED SALCEDO SEVERICHE: 4.00 (3 notas)\n12. SAMUEL ANDRES ROJAS OSPINO: 3.97 (3 notas)\n13. ISABELLA PALOMINO GIL: 3.88 (5 notas)\n14. LISLEY KAROLINA ESCORCIA CARREÑO: 3.88 (5 notas)\n15. GERIZIM MUÑOZ TORRES: 3.84 (5 notas)\n16. ANNY SOFIA MORILLO FERNANDEZ: 3.83 (4 notas)\n17. SALMA SOPHIA MOYANO SAEZ: 3.82 (5 notas)\n18. LETICIA ISABEL ECHENIQUE CORREA: 3.82 (5 notas)\n19. DILAN DAVID ESPITIA SAEZ: 3.76 (5 notas)\n20. DIANA SOFIA BLANCO HERRERA: 3.64 (5 notas)\n21. SOFY JULIETH VERGARA HERNANDEZ: 3.64 (5 notas)\n22. GLEIDYS BRITANY MENDOZA OSPINO: 3.58 (5 notas)\n23. MAICOLL JOSE AHUMADA JIMENEZ: 3.52 (5 notas)\n24. DAINER JOSE PINTO PEREZ: 3.50 (1 nota)\n25. ALISSON YINETH CANTILLO RAMOS: 3.46 (5 notas)\n26. ABIGAIL MEJIA RUIZ: 3.32 (5 notas)\n27. MATHIAS LIÑAN BALBUENA: 3.32 (5 notas)\n28. ANUAR DAVID CASTELLAR ZAPATEIRO: 3.18 (4 notas)\n29. NAHOMY SHANEL FONSECA PACHECO: 3.13 (3 notas)\n30. ALEXA MARIA OSPINO MORALES: 3.00 (5 notas)\n31. SALOME SOFIA DAZA SERRANO: 2.64 (5 notas)\n\nSi necesitas más información o un análisis específico, házmelo saber.",
+        "ms": 17273,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.98",
+        "answer": "El promedio del grupo en la actividad «Prueba final» (Educación Física, Periodo 2) es 3.84.",
+        "ms": 23686,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 4
+      }
+    },
+    {
+      "id": "act-avg-7",
+      "tag": "actividad_avg",
+      "question": "¿Cuál es el promedio del grupo en la actividad «evaluacion 2» (Educación Física, Periodo 3)?",
+      "expect": {
+        "kind": "number",
+        "value": 4.0
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.0",
+        "answer": "El promedio de los estudiantes en la actividad «evaluación 2» de Educación Física para el tercer periodo es el siguiente:\n\n1. **Israel Bekhor Matos Linares**: 4.59 (17 notas)\n2. **Luciana Misheel Herazo Guzmán**: 4.44 (17 notas)\n3. **Ángel David Díaz Guzmán**: 4.24 (17 notas)\n4. **Santiago Díaz Acosta**: 4.17 (15 notas)\n5. **Noel Enrique Pérez Ballesteros**: 4.13 (12 notas)\n6. **Diana Sofía Blanco Herrera**: 4.10 (17 notas)\n7. **Matías David Peralta Sibaja**: 4.09 (17 notas)\n8. **Jorge Eduardo Carrión García**: 4.01 (17 notas)\n9. **Leticia Isabel Echenique Correa**: 4.00 (17 notas)\n10. **Joswil de Jesús Pinzón Pertuz**: 3.98 (17 notas)\n\nSi necesitas más información o un análisis adicional, házmelo saber.",
+        "ms": 9190,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql",
+          "describe_teacher_schema",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=4.0",
+        "answer": "No se puede determinar el promedio del grupo en la actividad «evaluacion 2» de Educación Física, Periodo 3, debido a que no hay datos disponibles.",
+        "ms": 31186,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-0",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Educación Física en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 4.68,
+        "name": "MAICOLL JOSE AHUMADA   JIMENEZ"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.68 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 1.",
+        "ms": 71,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.68 / MAICOLL JOSE AHUMADA   JIMENEZ",
+        "answer": "No hay información sobre el mejor estudiante de Educación Física en el Periodo 1.",
+        "ms": 34921,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-1",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Educación Física en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 4.8,
+        "name": "ANGEL  DAVID DIAZ   GUZMAN"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.8 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 2.",
+        "ms": 77,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.8 / ANGEL  DAVID DIAZ   GUZMAN",
+        "answer": "El mejor estudiante de Educación Física en el Periodo 2 fue ISRAEL BEKHOR MATOS LINARES con un promedio de 4.62.",
+        "ms": 12801,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "rank-best-2",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Educación Física en el Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 4.86,
+        "name": "ISRAEL BEKHOR         MATOS   LINARES"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.86 / ISRAEL BEKHOR         MATOS   LINARES",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 3.",
+        "ms": 50,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.86 / ISRAEL BEKHOR         MATOS   LINARES",
+        "answer": "No hay evidencia específica del periodo 3 ni de la materia Educación Física.",
+        "ms": 36377,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-3",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Geometría en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 4.38,
+        "name": "LUCIANA MISHEELL HERAZO   GUZMAN"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.38 / LUCIANA MISHEELL HERAZO   GUZMAN",
+        "answer": "No encontré notas en **Geometría** en Periodo 1.",
+        "ms": 65,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.38 / LUCIANA MISHEELL HERAZO   GUZMAN",
+        "answer": "No hay información sobre el mejor estudiante de Geometría en el Periodo 1, ya que no se proporcionaron resultados específicos.",
+        "ms": 32005,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-4",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Geometría en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 4.7,
+        "name": "MARIANA  VALENTINA ZAMBRANO  MOLINA"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.7 / MARIANA  VALENTINA ZAMBRANO  MOLINA",
+        "answer": "No encontré notas en **Geometría** en Periodo 2.",
+        "ms": 69,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.7 / MARIANA  VALENTINA ZAMBRANO  MOLINA",
+        "answer": "No hay datos concretos sobre el mejor estudiante de Geometría en el Periodo 2.",
+        "ms": 32921,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-5",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Geometría en el Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 4.17,
+        "name": "LETICIA ISABEL ECHENIQUE CORREA"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 4.17 / LETICIA ISABEL ECHENIQUE CORREA",
+        "answer": "No encontré notas en **Geometría** en Periodo 3.",
+        "ms": 39,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 4.17 / LETICIA ISABEL ECHENIQUE CORREA",
+        "answer": "No hay información sobre el mejor estudiante de Geometría en el Periodo 3.",
+        "ms": 36079,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-best-6",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Matematicas en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 4.63,
+        "name": "LUCIANA MISHEELL HERAZO   GUZMAN"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.63 + nombre",
+        "answer": "El mejor estudiante en **Matemáticas** en **Periodo 1** fue **LUCIANA MISHEELL HERAZO   GUZMAN**, con promedio **4.63** (4 notas).",
+        "ms": 62,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 4.63 + nombre",
+        "answer": "El mejor estudiante de Matemáticas en el Periodo 1 fue Luciana Misheell Herazo Guzmán con un promedio de 4.63.",
+        "ms": 9967,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "rank-best-7",
+      "tag": "ranking_mejor",
+      "question": "¿Quién fue el mejor estudiante de Matematicas en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 4.73,
+        "name": "ISRAEL BEKHOR         MATOS   LINARES"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 4.73 + nombre",
+        "answer": "El mejor estudiante en **Matemáticas** en **Periodo 2** fue **ISRAEL BEKHOR         MATOS   LINARES**, con promedio **4.73** (7 notas).",
+        "ms": 87,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 4.73 + nombre",
+        "answer": "El mejor estudiante de Matemáticas en el Periodo 2 fue ISRAEL BEKHOR MATOS LINARES con un promedio de 4.73.",
+        "ms": 10681,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "rank-worst-0",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Educación Física en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 3.8,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.8 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 1.",
+        "ms": 62,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.8 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No hay información sobre los estudiantes de Educación Física en el Periodo 1.",
+        "ms": 31209,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-1",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Educación Física en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 3.77,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.77 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 2.",
+        "ms": 67,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.77 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No hay datos específicos sobre el peor estudiante de Educación Física en el Periodo 2.",
+        "ms": 32749,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-2",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Educación Física en el Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 3.29,
+        "name": "GLEIDYS BRITANY MENDOZA    OSPINO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.29 / GLEIDYS BRITANY MENDOZA    OSPINO",
+        "answer": "No encontré notas en **Educación Artística** en Periodo 3.",
+        "ms": 67,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.29 / GLEIDYS BRITANY MENDOZA    OSPINO",
+        "answer": "No hay información sobre el peor estudiante de Educación Física en el Periodo 3, ya que no se registraron datos relevantes.",
+        "ms": 34686,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-3",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Geometría en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 3.25,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 3.25 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No encontré notas en **Geometría** en Periodo 1.",
+        "ms": 49,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 3.25 / SALOME SOFIA DAZA    SERRANO",
+        "answer": "No hay datos específicos sobre el peor estudiante de Geometría en el Periodo 1.",
+        "ms": 31045,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-4",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Geometría en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 2.98,
+        "name": "ANUAR DAVID CASTELLAR    ZAPATEIRO"
+      },
+      "mao": {
+        "verdict": "mal",
+        "detail": "esperaba 2.98 / ANUAR DAVID CASTELLAR    ZAPATEIRO",
+        "answer": "No encontré notas en **Geometría** en Periodo 2.",
+        "ms": 70,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "mal",
+        "detail": "esperaba 2.98 / ANUAR DAVID CASTELLAR    ZAPATEIRO",
+        "answer": "No hay datos de estudiantes en Geometría para el Periodo 2.",
+        "ms": 33470,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-5",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Geometría en el Periodo 3?",
+      "expect": {
+        "kind": "number",
+        "value": 3.0,
+        "name": "MATHIAS                         LIÑAN BALBUENA"
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=True hit_name=False target=3.0",
+        "answer": "No encontré notas en **Geometría** en Periodo 3.",
+        "ms": 231,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=True hit_name=False target=3.0",
+        "answer": "No hay datos de estudiantes en Geometría para el Periodo 3.",
+        "ms": 34926,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "rank-worst-6",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Matematicas en el Periodo 1?",
+      "expect": {
+        "kind": "number",
+        "value": 3.25,
+        "name": "SALOME SOFIA DAZA    SERRANO"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 3.25 + nombre",
+        "answer": "El peor estudiante en **Matemáticas** en **Periodo 1** fue **SALOME SOFIA DAZA    SERRANO**, con promedio **3.25** (4 notas).",
+        "ms": 65,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 3.25 + nombre",
+        "answer": "El peor estudiante de Matemáticas en el Periodo 1 fue Salomé Sofía Daza Serrano con un promedio de 3.25.",
+        "ms": 17302,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 2
+      }
+    },
+    {
+      "id": "rank-worst-7",
+      "tag": "ranking_peor",
+      "question": "¿Quién fue el peor estudiante de Matematicas en el Periodo 2?",
+      "expect": {
+        "kind": "number",
+        "value": 2.5,
+        "name": "SAMUEL ANDRES ROJAS    OSPINO"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 2.5 + nombre",
+        "answer": "El peor estudiante en **Matemáticas** en **Periodo 2** fue **SAMUEL ANDRES ROJAS    OSPINO**, con promedio **2.5** (7 notas).",
+        "ms": 64,
+        "tools": [
+          "list_periods",
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 2.5 + nombre",
+        "answer": "El peor estudiante de Matemáticas en el Periodo 2 fue SAMUEL ANDRES ROJAS OSPINO con un promedio de 2.5.",
+        "ms": 9734,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    },
+    {
+      "id": "stu-best-0-educac",
+      "tag": "estudiante_mejor_nota",
+      "question": "¿Cuál es la mejor nota de ABIGAIL MEJIA en Educación Física?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ABIGAIL MEJIA"
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=5.0",
+        "answer": "No encontré notas de **ABIGAIL MEJIA** en Educación Artística en tus asignaturas.",
+        "ms": 48,
+        "tools": [
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=5.0",
+        "answer": "No se encontró evidencia de las notas de ABIGAIL MEJIA en Educación Física.",
+        "ms": 29815,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "stu-best-0-geomet",
+      "tag": "estudiante_mejor_nota",
+      "question": "¿Cuál es la mejor nota de ABIGAIL MEJIA en Geometría?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ABIGAIL MEJIA"
+      },
+      "mao": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=5.0",
+        "answer": "No encontré notas de **ABIGAIL MEJIA** en Geometría en tus asignaturas.",
+        "ms": 55,
+        "tools": [
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "parcial",
+        "detail": "hit_num=False hit_name=True target=5.0",
+        "answer": "No se encontró evidencia de las notas de ABIGAIL MEJIA en Geometría.",
+        "ms": 29351,
+        "satisfactory": false,
+        "score": 0.0,
+        "rounds": 5
+      }
+    },
+    {
+      "id": "stu-best-0-matema",
+      "tag": "estudiante_mejor_nota",
+      "question": "¿Cuál es la mejor nota de ABIGAIL MEJIA en Matematicas?",
+      "expect": {
+        "kind": "number",
+        "value": 5.0,
+        "name": "ABIGAIL MEJIA"
+      },
+      "mao": {
+        "verdict": "bien",
+        "detail": "número 5.0 + nombre",
+        "answer": "Mejor nota de **ABIGAIL                      MEJIA RUIZ** en **Matematicas**: **5.0** en «ESCRITURA Y LECTURA DECIMALES» (Periodo 3).",
+        "ms": 76,
+        "tools": [
+          "run_teacher_sql"
+        ]
+      },
+      "multi": {
+        "verdict": "bien",
+        "detail": "número 5.0 + nombre",
+        "answer": "La mejor nota de ABIGAIL MEJIA en Matemáticas es 5.0.",
+        "ms": 9361,
+        "satisfactory": true,
+        "score": 1.0,
+        "rounds": 1
+      }
+    }
+  ]
+}

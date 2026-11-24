@@ -4,7 +4,17 @@ Main API router with all endpoints
 """
 
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, academic, chat, teacher_chat, prediction, recommendation, rag
+from app.api.v1.endpoints import (
+    health,
+    academic,
+    chat,
+    teacher_chat,
+    teacher_multiagent,
+    teacher_responses,
+    prediction,
+    recommendation,
+    rag,
+)
 
 api_router = APIRouter()
 
@@ -13,6 +23,16 @@ api_router.include_router(health.router, prefix="/health", tags=["health"])
 api_router.include_router(academic.router, prefix="/academic", tags=["academic"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
 api_router.include_router(teacher_chat.router, prefix="/chat/teacher", tags=["teacher-chat"])
+api_router.include_router(
+    teacher_multiagent.router,
+    prefix="/chat/teacher",
+    tags=["teacher-multiagent"],
+)
+api_router.include_router(
+    teacher_responses.router,
+    prefix="/chat/teacher",
+    tags=["teacher-responses"],
+)
 api_router.include_router(prediction.router, prefix="/prediction", tags=["prediction"])
 api_router.include_router(recommendation.router, prefix="/recommendation", tags=["recommendation"])
 api_router.include_router(rag.router, prefix="/rag", tags=["rag"])
@@ -32,6 +52,8 @@ async def root():
             "academic": "/api/v1/academic/",
             "chat": "/api/v1/chat/",
             "teacher_chat": "/api/v1/chat/teacher/",
+            "teacher_multiagent": "/api/v1/chat/teacher/multiagent",
+            "teacher_responses": "/api/v1/chat/teacher/responses",
             "prediction": "/api/v1/prediction/",
             "recommendation": "/api/v1/recommendation/",
             "rag": "/api/v1/rag/",
